@@ -77,7 +77,12 @@ function updateWranglerJsonc() {
 }
 
 function runSetupCommands() {
-    const commands = [];
+    const commands = [
+    "bun add react-markdown@^9.0.1",
+    "bun add rehype-raw@^7.0.0",
+    "bun add dompurify@^3.1.7",
+    "bun add dexie@^4.0.8"
+];
     
     if (commands.length === 0) {
         console.log('⊘ No setup commands to run');
