@@ -21,9 +21,9 @@ export function FMVLookup() {
     if (!benchmark) return;
     const billedVal = parseFloat(billed);
     setData([
-      { name: 'Fair Value', value: benchmark.fmv, color: '#10b981' },
-      { name: 'PA Average', value: benchmark.avg, color: '#f59e0b' },
-      { name: 'Your Bill', value: billedVal, color: billedVal > benchmark.avg ? '#ef4444' : '#6366f1' },
+      { name: 'Fair Value', value: benchmark.fmv, color: '#f59e0b' }, // Amber
+      { name: 'PA Average', value: benchmark.avg, color: '#64748b' }, // Slate
+      { name: 'Your Bill', value: billedVal, color: billedVal > benchmark.avg ? '#ef4444' : '#0f172a' },
     ]);
   };
   return (
@@ -43,7 +43,7 @@ export function FMVLookup() {
               <Label>Billed Amount ($)</Label>
               <Input type="number" placeholder="e.g. 1500" value={billed} onChange={e => setBilled(e.target.value)} />
             </div>
-            <Button onClick={handleLookup} disabled={!MOCK_CPT_DATA[cpt]}>Compare Prices</Button>
+            <Button onClick={handleLookup} disabled={!MOCK_CPT_DATA[cpt] || !billed}>Compare Prices</Button>
           </div>
           {!MOCK_CPT_DATA[cpt] && cpt.length >= 5 && (
             <p className="text-xs text-amber-600 mt-2">Code not in database yet. Try 70551 or 99213.</p>
@@ -56,14 +56,23 @@ export function FMVLookup() {
             <CardHeader>
               <CardTitle className="text-sm font-medium">Price Comparison for {MOCK_CPT_DATA[cpt].name}</CardTitle>
             </CardHeader>
-            <CardContent className="h-[300px]">
+            <CardContent className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" />
-                  <YAxis prefix="$" />
-                  <Tooltip formatter={(value) => `$${value}`} />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis 
+                    tickFormatter={(value) => `$${value}`} 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false}
+                  />
+                  <Tooltip 
+                    cursor={{ fill: 'transparent' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                    formatter={(value) => [`$${value}`, 'Amount']} 
+                  />
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={60}>
                     {data.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
@@ -73,20 +82,20 @@ export function FMVLookup() {
             </CardContent>
           </Card>
           <div className="space-y-4">
-            <Alert className={parseFloat(billed) > MOCK_CPT_DATA[cpt].avg ? 'border-red-200' : 'border-emerald-200'}>
+            <Alert className={parseFloat(billed) > MOCK_CPT_DATA[cpt].avg ? 'border-red-200 bg-red-50/50' : 'border-emerald-200 bg-emerald-50/50'}>
               <TrendingDown className="h-4 w-4" />
               <AlertTitle>Audit Result</AlertTitle>
               <AlertDescription className="text-sm">
-                Your bill is {((parseFloat(billed) / MOCK_CPT_DATA[cpt].fmv) * 100).toFixed(0)}% of the Fair Market Value.
+                Your bill is {((parseFloat(billed) / MOCK_CPT_DATA[cpt].fmv) * 100).toFixed(0)}% of the Fair Market Value benchmark.
               </AlertDescription>
             </Alert>
-            <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900">
+            <div className="p-4 rounded-lg bg-slate-900 text-white border border-slate-800">
               <h4 className="text-sm font-bold flex items-center gap-2 mb-2">
-                <Info className="w-4 h-4 text-blue-600" />
+                <Info className="w-4 h-4 text-amber-500" />
                 Advocacy Strategy
               </h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Cite the <strong>Fair Market Value</strong> benchmarks in your appeal. Hospitals are often willing to settle for 150-200% of Medicare rates, which typically aligns with our "Fair Value" metric.
+              <p className="text-xs text-slate-400 leading-relaxed">
+                In PA, hospitals often settle for 150-200% of Medicare rates. Cite this "Fair Market Value" benchmark to demand a settlement review from the hospital ombudsman.
               </p>
             </div>
           </div>

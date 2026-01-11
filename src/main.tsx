@@ -15,19 +15,10 @@ import { HomePage } from '@/pages/HomePage'
 import { WikiPage } from '@/pages/WikiPage'
 import { ToolsPage } from '@/pages/ToolsPage'
 import { VaultPage } from '@/pages/VaultPage'
+import { DirectoryPage } from '@/pages/DirectoryPage'
+import { AppealGeneratorPage } from '@/pages/AppealGeneratorPage'
+import { EmergencyPage } from '@/pages/EmergencyPage'
 const queryClient = new QueryClient();
-const ComingSoon = ({ title }: { title: string }) => (
-  <AppLayout>
-    <div className="p-20 text-center space-y-4">
-      <h1 className="text-2xl font-bold">{title}</h1>
-      <p className="text-muted-foreground">This tool is coming in Phase 3.</p>
-      <a href="/" className="text-amber-600 hover:underline">Back Home</a>
-    </div>
-  </AppLayout>
-);
-// We keep Placeholder as a separate component exported from another file if needed, 
-// but here we use it inline to satisfy the router for yet-to-be-built pages.
-import { AppLayout } from '@/components/layout/AppLayout';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -56,21 +47,29 @@ const router = createBrowserRouter([
   },
   {
     path: "/directory",
-    element: <ComingSoon title="Provider Directory" />,
+    element: <DirectoryPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/appeal-generator",
+    element: <AppealGeneratorPage />,
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: "/emergency",
-    element: <ComingSoon title="Emergency Rights" />,
+    element: <EmergencyPage />,
     errorElement: <RouteErrorBoundary />,
   },
 ]);
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
-        <RouterProvider router={router} />
-      </ErrorBoundary>
-    </QueryClientProvider>
-  </StrictMode>,
-)
+const rootElement = document.getElementById('root');
+if (rootElement && !rootElement.innerHTML) {
+  createRoot(rootElement).render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <ErrorBoundary>
+          <RouterProvider router={router} />
+        </ErrorBoundary>
+      </QueryClientProvider>
+    </StrictMode>,
+  )
+}

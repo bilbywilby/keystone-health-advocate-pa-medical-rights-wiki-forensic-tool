@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import type { Env } from './core-utils';
-import { UserEntity, ChatBoardEntity, WikiEntity } from "./entities";
+import { UserEntity, ChatBoardEntity, WikiEntity, ProviderEntity } from "./entities";
 import { ok, bad, notFound, isStr } from './core-utils';
 export function userRoutes(app: Hono<{ Bindings: Env }>) {
   app.get('/api/test', (c) => c.json({ success: true, data: { name: 'Keystone Health Advocate API' }}));
@@ -14,6 +14,14 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     const article = await WikiEntity.findBySlug(c.env, c.req.param('slug'));
     if (!article) return notFound(c, 'Article not found');
     return ok(c, article);
+  });
+  // PROVIDERS
+  app.get('/api/providers', async (c) => {
+    await ProviderEntity.ensureSeed(c.env);
+    const query = c.req.query('query');
+    const zip = c.req.query('zip');
+    const providers = await ProviderEntity.search(c.env, query, zip);
+    return ok(c, providers);
   });
   // USERS
   app.get('/api/users', async (c) => {

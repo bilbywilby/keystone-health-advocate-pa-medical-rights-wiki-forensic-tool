@@ -33,3 +33,25 @@ export interface WikiArticle {
   lastUpdated: string;
   excerpt: string;
 }
+export interface Provider {
+  id: string;
+  name: string;
+  city: string;
+  zip: string;
+  transparencyRating: number; // 1-5
+  isCompliant: boolean;
+  type: 'Hospital' | 'Clinic' | 'Payer';
+}
+export enum AppealIssue {
+  PRIOR_AUTH = "Prior Authorization Denial (Act 146)",
+  BALANCE_BILLING = "Surprise Balance Billing (No Surprises Act)",
+  INTEREST_RATE = "Illegal Interest Rate (Act 6)",
+  UNFAIR_PRICING = "Fair Market Value Dispute"
+}
+export interface AppealTemplate {
+  id: string;
+  title: string;
+  issueType: AppealIssue;
+  description: string;
+  content: string; // Markdown with placeholders like {{patient_name}}
+}
