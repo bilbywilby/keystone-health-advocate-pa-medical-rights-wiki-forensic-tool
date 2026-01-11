@@ -1,6 +1,6 @@
 # Cloudflare Workers Real-time Chat Demo
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/bilbywilby/keystone-health-advocate-pa-medical-rights-wiki-forensic-tool)
 
 A production-ready full-stack chat application built with Cloudflare Workers, Durable Objects, and React. Demonstrates scalable, multi-tenant entity storage using a single Global Durable Object class, with indexed listing, CRUD operations, and real-time message handling.
 
@@ -95,7 +95,7 @@ bun deploy
 
 This runs `vite build` then `wrangler deploy`.
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/bilbywilby/keystone-health-advocate-pa-medical-rights-wiki-forensic-tool)
 
 Configure your production domain in `wrangler.jsonc`.
 
