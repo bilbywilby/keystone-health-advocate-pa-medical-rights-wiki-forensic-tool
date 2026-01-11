@@ -18,6 +18,7 @@ import { VaultPage } from '@/pages/VaultPage'
 import { DirectoryPage } from '@/pages/DirectoryPage'
 import { AppealGeneratorPage } from '@/pages/AppealGeneratorPage'
 import { EmergencyPage } from '@/pages/EmergencyPage'
+import { DisputePage } from '@/pages/DisputePage'
 const queryClient = new QueryClient();
 const router = createBrowserRouter([
   {
@@ -58,6 +59,11 @@ const router = createBrowserRouter([
   {
     path: "/emergency",
     element: <EmergencyPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/disputes",
+    element: <DisputePage />,
     errorElement: <RouteErrorBoundary />,
   },
 ]);

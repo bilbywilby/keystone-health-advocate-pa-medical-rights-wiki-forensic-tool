@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { SidebarProvider, SidebarInset, SidebarTrigger, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarGroup, SidebarGroupLabel } from "@/components/ui/sidebar";
-import { BookOpen, Calculator, Landmark, ShieldCheck, Heart, Vault, Home, FileText, Globe } from "lucide-react";
+import { BookOpen, Calculator, Landmark, ShieldCheck, Heart, Vault, Home, FileText, Globe, Gavel, Zap } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { api } from "@/lib/api-client";
 import { CommunityStats } from "@shared/types";
 const NAV_ITEMS = [
-  { label: "Dashboard", icon: Home, path: "/" },
+  { label: "Home Dashboard", icon: Home, path: "/" },
   { label: "Rights Wiki", icon: BookOpen, path: "/wiki" },
+  { label: "Dispute Suite", icon: Gavel, path: "/disputes" },
   { label: "Forensic Tools", icon: Calculator, path: "/tools" },
   { label: "Appeal Generator", icon: FileText, path: "/appeal-generator" },
   { label: "Provider Directory", icon: Landmark, path: "/directory" },
@@ -22,17 +23,17 @@ export function AppSidebar() {
           <ShieldCheck className="w-5 h-5" />
         </div>
         <div className="flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
-          <span className="font-extrabold text-sm leading-none tracking-tight">Keystone Health</span>
-          <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest mt-0.5">Patient Advocacy</span>
+          <span className="font-extrabold text-sm leading-none tracking-tight">Keystone Advocate</span>
+          <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest mt-0.5">2026 PA Defense</span>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="px-4 text-[10px] font-bold uppercase text-slate-400">Main Menu</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-4 text-[10px] font-bold uppercase text-slate-400">Defense Suite</SidebarGroupLabel>
           <SidebarMenu className="px-2">
             {NAV_ITEMS.map((item) => (
               <SidebarMenuItem key={item.path}>
-                <SidebarMenuButton asChild isActive={location.pathname === item.path} tooltip={item.label} className="transition-all hover:scale-[1.02]">
+                <SidebarMenuButton asChild isActive={location.pathname === item.path} tooltip={item.label} className="transition-all">
                   <Link to={item.path} className="flex items-center gap-3">
                     <item.icon className={`w-4 h-4 ${location.pathname === item.path ? 'text-amber-500' : ''}`} />
                     <span className="font-medium">{item.label}</span>
@@ -46,7 +47,7 @@ export function AppSidebar() {
       <SidebarFooter className="p-4 border-t bg-slate-50/50 dark:bg-slate-900/50">
         <div className="flex items-center gap-2 group-data-[collapsible=icon]:hidden">
           <Heart className="w-3 h-3 text-red-500 fill-red-500 animate-pulse" />
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Built for PA Residents</span>
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Built for PA Residents</span>
         </div>
       </SidebarFooter>
     </Sidebar>
@@ -67,9 +68,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-6">
             {stats && (
               <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-800">
-                <Globe className="w-3 h-3 text-emerald-500" />
+                <Zap className="w-3 h-3 text-amber-500" />
                 <span className="text-[10px] font-bold uppercase tracking-widest">
-                  {stats.totalAudited.toLocaleString()} Community Audits
+                  SB 371 Active
                 </span>
               </div>
             )}

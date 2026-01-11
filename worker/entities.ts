@@ -1,5 +1,5 @@
 import { IndexedEntity } from "./core-utils";
-import type { User, Chat, ChatMessage, WikiArticle, Provider, PricePoint } from "@shared/types";
+import type { User, Chat, ChatMessage, WikiArticle, Provider, PricePoint, CommunityStats, BenchmarkStats } from "@shared/types";
 import { MOCK_CHAT_MESSAGES, MOCK_CHATS, MOCK_USERS } from "@shared/mock-data";
 import { MOCK_WIKI_ARTICLES } from "../src/lib/wiki-content";
 export class UserEntity extends IndexedEntity<User> {
@@ -67,22 +67,33 @@ export class PriceBenchmarkEntity extends IndexedEntity<PricePoint> {
     { id: "b4", cptCode: "70551", amount: 480, zipPrefix: "191", facilityType: "Imaging Center", timestamp: Date.now() },
     { id: "b5", cptCode: "45378", amount: 1150, zipPrefix: "178", facilityType: "Hospital", timestamp: Date.now() }
   ];
-  static async getStatsForCode(env: any, cptCode: string) {
+  static async getStatsForCode(env: any, cptCode: string): Promise<BenchmarkStats | null> {
     const { items } = await this.list(env);
     const filtered = items.filter(i => i.cptCode === cptCode);
     if (filtered.length === 0) return null;
     const amounts = filtered.map(f => f.amount).sort((a, b) => a - b);
     const avg = amounts.reduce((a, b) => a + b, 0) / amounts.length;
     const median = amounts[Math.floor(amounts.length / 2)];
-    const fmv = amounts[0] * 1.1; // Local heuristic for Fair Market Value
-    return { avg, median, fmv, count: filtered.length };
+    const fmv = amounts[0] * 1.1; 
+    return { 
+      avg, 
+      median, 
+      fmv, 
+      count: filtered.length,
+      confidence: filtered.length >= 5 ? 'High' : 'Low'
+    };
   }
-  static async getGlobalStats(env: any) {
+  static async getGlobalStats(env: any): Promise<CommunityStats> {
     const { items } = await this.list(env);
     return {
-      totalAudited: items.length * 4, // Multiplier for simulation
+      totalAudited: items.length * 4,
       totalSavingsIdentified: items.length * 1250,
-      contributorCount: items.length
+      contributorCount: items.length,
+      legislativePulse: [
+        { label: "HB 79 Screening", status: "Enforced", impact: "Mandatory assistance check" },
+        { label: "SB 371 Interest Cap", status: "Active", impact: "3% ceiling on medical debt" },
+        { label: "Act 146 Enforcement", status: "Enforced", impact: "Specialty match required" }
+      ]
     };
   }
 }

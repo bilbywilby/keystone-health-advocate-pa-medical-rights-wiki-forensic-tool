@@ -45,8 +45,10 @@ export interface Provider {
 export enum AppealIssue {
   PRIOR_AUTH = "Prior Authorization Denial (Act 146)",
   BALANCE_BILLING = "Surprise Balance Billing (No Surprises Act)",
-  INTEREST_RATE = "Illegal Interest Rate (Act 6)",
-  UNFAIR_PRICING = "Fair Market Value Dispute"
+  INTEREST_RATE = "Illegal Interest Rate (Act 6/SB 371)",
+  UNFAIR_PRICING = "Fair Market Value Dispute",
+  FINANCIAL_ASSISTANCE = "HB 79 Financial Assistance Denial",
+  MEDICAL_DEBT_SHIELD = "SB 371 Medical Debt Violation"
 }
 export interface AppealTemplate {
   id: string;
@@ -54,6 +56,14 @@ export interface AppealTemplate {
   issueType: AppealIssue;
   description: string;
   content: string;
+}
+export type ConfidenceLevel = 'Low' | 'High';
+export interface BenchmarkStats {
+  avg: number;
+  median: number;
+  fmv: number;
+  count: number;
+  confidence: ConfidenceLevel;
 }
 export interface PricePoint {
   id: string;
@@ -74,4 +84,24 @@ export interface CommunityStats {
   totalAudited: number;
   totalSavingsIdentified: number;
   contributorCount: number;
+  legislativePulse: {
+    label: string;
+    status: 'Active' | 'Pending' | 'Enforced';
+    impact: string;
+  }[];
+}
+export interface FPLThresholds {
+  householdSize: number;
+  incomeLimit: number; // 400% FPL
+}
+export interface PremiumShockData {
+  year2025: number;
+  year2026: number;
+  income: number;
+}
+export interface NPIRecord {
+  npi: string;
+  name: string;
+  specialty: string;
+  status: string;
 }
