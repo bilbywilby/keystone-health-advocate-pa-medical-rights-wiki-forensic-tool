@@ -1,138 +1,98 @@
-// Home page of the app.
-// Currently a demo placeholder "please wait" screen.
-// Replace this file with your actual app UI. Do not delete it to use some other file as homepage. Simply replace the entire contents of this file.
-
-import { useEffect, useMemo, useState } from 'react'
-import { Sparkles } from 'lucide-react'
-
-import { ThemeToggle } from '@/components/ThemeToggle'
-import { HAS_TEMPLATE_DEMO, TemplateDemo } from '@/components/TemplateDemo'
-import { Button } from '@/components/ui/button'
-import { Toaster, toast } from '@/components/ui/sonner'
-
-function formatDuration(ms: number): string {
-  const total = Math.max(0, Math.floor(ms / 1000))
-  const m = Math.floor(total / 60)
-  const s = total % 60
-  return `${m}:${s.toString().padStart(2, '0')}`
-}
-
+import React from 'react';
+import { ShieldCheck, ArrowRight, Gavel, Calculator, FileText, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { WikiSearch } from '@/components/WikiSearch';
+import { Link } from 'react-router-dom';
+import { AppLayout } from '@/components/layout/AppLayout';
 export function HomePage() {
-  const [coins, setCoins] = useState(0)
-  const [isRunning, setIsRunning] = useState(false)
-  const [startedAt, setStartedAt] = useState<number | null>(null)
-  const [elapsedMs, setElapsedMs] = useState(0)
-
-  useEffect(() => {
-    if (!isRunning || startedAt === null) return
-
-    const t = setInterval(() => {
-      setElapsedMs(Date.now() - startedAt)
-    }, 250)
-
-    return () => clearInterval(t)
-  }, [isRunning, startedAt])
-
-  const formatted = useMemo(() => formatDuration(elapsedMs), [elapsedMs])
-
-  const onPleaseWait = () => {
-    setCoins((c) => c + 1)
-
-    if (!isRunning) {
-      // Resume from the current elapsed time
-      setStartedAt(Date.now() - elapsedMs)
-      setIsRunning(true)
-      toast.success('Building your app…', {
-        description: "Hang tight — we're setting everything up.",
-      })
-      return
-    }
-
-    setIsRunning(false)
-    toast.info('Still working…', {
-      description: 'You can come back in a moment.',
-    })
-  }
-
-  const onReset = () => {
-    setCoins(0)
-    setIsRunning(false)
-    setStartedAt(null)
-    setElapsedMs(0)
-    toast('Reset complete')
-  }
-
-  const onAddCoin = () => {
-    setCoins((c) => c + 1)
-    toast('Coin added')
-  }
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-4 overflow-hidden relative">
-      <ThemeToggle />
-      <div className="absolute inset-0 bg-gradient-rainbow opacity-10 dark:opacity-20 pointer-events-none" />
-
-      <div className="text-center space-y-8 relative z-10 animate-fade-in w-full">
-        <div className="flex justify-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-primary floating">
-            <Sparkles className="w-8 h-8 text-white rotating" />
+    <AppLayout>
+      <div className="space-y-12">
+        {/* Hero Section */}
+        <section className="text-center space-y-6 max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-sm font-medium">
+            <ShieldCheck className="w-4 h-4" />
+            Empowering Pennsylvania Patients
           </div>
-        </div>
-
-        <div className="space-y-3">
-          <h1 className="text-5xl md:text-7xl font-display font-bold text-balance leading-tight">
-            Creating your <span className="text-gradient">app</span>
+          <h1 className="text-4xl md:text-6xl font-display font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+            Know Your <span className="text-amber-500">Medical Rights</span> in PA
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto text-pretty">
-            Your application would be ready soon.
+          <p className="text-lg text-muted-foreground text-pretty">
+            Access forensic billing tools and local regulatory guides. Fight denials using PA Act 146 and the Federal No Surprises Act.
           </p>
-        </div>
-
-        {HAS_TEMPLATE_DEMO ? (
-          <div className="max-w-5xl mx-auto text-left">
-            <TemplateDemo />
+          <WikiSearch />
+        </section>
+        {/* Quick Actions Grid */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="hover:shadow-md transition-shadow group">
+            <CardHeader>
+              <div className="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-2">
+                <Calculator className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <CardTitle>Audit Your Bill</CardTitle>
+              <CardDescription>Upload an EOB to check for "Fair Market Value" violations in PA.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="ghost" className="p-0 h-auto group-hover:text-primary transition-colors">
+                <Link to="/tools" className="flex items-center gap-2">
+                  Launch Toolkit <ArrowRight className="w-4 h-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+          <Card className="hover:shadow-md transition-shadow group">
+            <CardHeader>
+              <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-2">
+                <Gavel className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <CardTitle>Dispute a Denial</CardTitle>
+              <CardDescription>Generate an appeal letter citing PA-specific statutes and precedents.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="ghost" className="p-0 h-auto group-hover:text-primary transition-colors">
+                <Link to="/wiki" className="flex items-center gap-2">
+                  View Law Guides <ArrowRight className="w-4 h-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+          <Card className="hover:shadow-md transition-shadow group">
+            <CardHeader>
+              <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-2">
+                <FileText className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              </div>
+              <CardTitle>Privacy Vault</CardTitle>
+              <CardDescription>Securely store your medical records locally in your browser. HIPAA-safe by design.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="ghost" className="p-0 h-auto group-hover:text-primary transition-colors">
+                <Link to="/vault" className="flex items-center gap-2">
+                  Enter Vault <ArrowRight className="w-4 h-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </section>
+        {/* Featured Guide */}
+        <section className="bg-slate-900 text-white rounded-2xl p-8 md:p-12 overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-[100px]" />
+          <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
+            <div className="space-y-4">
+              <h2 className="text-3xl font-bold">New: Act 146 Guide</h2>
+              <p className="text-slate-400 text-lg">
+                Pennsylvania recently overhauled how prior authorizations work. Learn how to demand "Peer-to-Peer" reviews when your MRI or specialist visit is denied.
+              </p>
+              <Button asChild className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold">
+                <Link to="/wiki/act-146-prior-auth">Read the Master SOP</Link>
+              </Button>
+            </div>
+            <div className="hidden md:flex justify-end">
+              <ShieldCheck className="w-48 h-48 text-amber-500/20" />
+            </div>
           </div>
-        ) : (
-          <>
-            <div className="flex justify-center gap-4">
-              <Button
-                size="lg"
-                onClick={onPleaseWait}
-                className="btn-gradient px-8 py-4 text-lg font-semibold hover:-translate-y-0.5 transition-all duration-200"
-                aria-live="polite"
-              >
-                Please Wait
-              </Button>
-            </div>
-
-            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-              <div>
-                Time elapsed:{' '}
-                <span className="font-medium tabular-nums text-foreground">{formatted}</span>
-              </div>
-              <div>
-                Coins:{' '}
-                <span className="font-medium tabular-nums text-foreground">{coins}</span>
-              </div>
-            </div>
-
-            <div className="flex justify-center gap-2">
-              <Button variant="outline" size="sm" onClick={onReset}>
-                Reset
-              </Button>
-              <Button variant="outline" size="sm" onClick={onAddCoin}>
-                Add Coin
-              </Button>
-            </div>
-          </>
-        )}
+        </section>
       </div>
-
-      <footer className="absolute bottom-8 text-center text-muted-foreground/80">
-        <p>Powered by Cloudflare</p>
-      </footer>
-
-      <Toaster richColors closeButton />
-    </div>
-  )
+    </AppLayout>
+  );
 }
