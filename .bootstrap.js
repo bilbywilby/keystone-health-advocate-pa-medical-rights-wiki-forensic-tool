@@ -83,7 +83,8 @@ function runSetupCommands() {
     "bun add dompurify@^3.1.7",
     "bun add dexie@^4.0.8",
     "bun add dexie",
-    "bun add framer-motion"
+    "bun add framer-motion",
+    "bun add date-fns"
 ];
     
     if (commands.length === 0) {
