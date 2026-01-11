@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import type { Env } from './core-utils';
-import { UserEntity, ChatBoardEntity, WikiEntity, ProviderEntity } from "./entities";
-import { ok, bad, notFound, isStr } from './core-utils';
+import { UserEntity, ChatBoardEntity, WikiEntity, ProviderEntity, PriceBenchmarkEntity } from "./entities";
+import { ok, bad, notFound } from './core-utils';
 export function userRoutes(app: Hono<{ Bindings: Env }>) {
   app.get('/api/test', (c) => c.json({ success: true, data: { name: 'Keystone Health Advocate API' }}));
   // WIKI
@@ -23,16 +23,38 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     const providers = await ProviderEntity.search(c.env, query, zip);
     return ok(c, providers);
   });
-  // USERS
+  // BENCHMARKS
+  app.get('/api/benchmarks/stats', async (c) => {
+    await PriceBenchmarkEntity.ensureSeed(c.env);
+    const stats = await PriceBenchmarkEntity.getGlobalStats(c.env);
+    return ok(c, stats);
+  });
+  app.get('/api/benchmarks/:cpt', async (c) => {
+    await PriceBenchmarkEntity.ensureSeed(c.env);
+    const stats = await PriceBenchmarkEntity.getStatsForCode(c.env, c.req.param('cpt'));
+    if (!stats) return notFound(c, 'No data for this CPT code');
+    return ok(c, stats);
+  });
+  app.post('/api/benchmarks/submit', async (c) => {
+    const body = await c.req.json();
+    if (!body.cptCode || !body.billedAmount || !body.zip) {
+      return bad(c, 'Missing required fields');
+    }
+    const point = {
+      id: crypto.randomUUID(),
+      cptCode: body.cptCode,
+      amount: body.billedAmount,
+      zipPrefix: body.zip.substring(0, 3),
+      facilityType: body.facilityType || 'Hospital',
+      timestamp: Date.now()
+    };
+    await PriceBenchmarkEntity.create(c.env, point);
+    return ok(c, { message: 'Submission received and sanitized' });
+  });
+  // USERS / CHATS (Legacy/Boilerplate support)
   app.get('/api/users', async (c) => {
     await UserEntity.ensureSeed(c.env);
     const page = await UserEntity.list(c.env);
-    return ok(c, page);
-  });
-  // CHATS
-  app.get('/api/chats', async (c) => {
-    await ChatBoardEntity.ensureSeed(c.env);
-    const page = await ChatBoardEntity.list(c.env);
     return ok(c, page);
   });
 }

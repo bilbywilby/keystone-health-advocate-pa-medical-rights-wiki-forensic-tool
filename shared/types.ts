@@ -53,5 +53,25 @@ export interface AppealTemplate {
   title: string;
   issueType: AppealIssue;
   description: string;
-  content: string; // Markdown with placeholders like {{patient_name}}
+  content: string;
+}
+export interface PricePoint {
+  id: string;
+  cptCode: string;
+  amount: number;
+  zipPrefix: string;
+  facilityType: string;
+  timestamp: number;
+}
+export interface ScrubbedSubmission {
+  cptCode: string;
+  billedAmount: number;
+  zip: string;
+  facilityType: string;
+  isSanitized: boolean;
+}
+export interface CommunityStats {
+  totalAudited: number;
+  totalSavingsIdentified: number;
+  contributorCount: number;
 }

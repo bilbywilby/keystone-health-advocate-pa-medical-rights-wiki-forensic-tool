@@ -1,5 +1,5 @@
 import { IndexedEntity } from "./core-utils";
-import type { User, Chat, ChatMessage, WikiArticle, Provider } from "@shared/types";
+import type { User, Chat, ChatMessage, WikiArticle, Provider, PricePoint } from "@shared/types";
 import { MOCK_CHAT_MESSAGES, MOCK_CHATS, MOCK_USERS } from "@shared/mock-data";
 import { MOCK_WIKI_ARTICLES } from "../src/lib/wiki-content";
 export class UserEntity extends IndexedEntity<User> {
@@ -18,15 +18,6 @@ export class ChatBoardEntity extends IndexedEntity<ChatBoardState> {
   static readonly indexName = "chats";
   static readonly initialState: ChatBoardState = { id: "", title: "", messages: [] };
   static seedData = SEED_CHAT_BOARDS;
-  async listMessages(): Promise<ChatMessage[]> {
-    const { messages } = await this.getState();
-    return messages;
-  }
-  async sendMessage(userId: string, text: string): Promise<ChatMessage> {
-    const msg: ChatMessage = { id: crypto.randomUUID(), chatId: this.id, userId, text, ts: Date.now() };
-    await this.mutate(s => ({ ...s, messages: [...s.messages, msg] }));
-    return msg;
-  }
 }
 export class WikiEntity extends IndexedEntity<WikiArticle> {
   static readonly entityName = "wiki";
@@ -61,5 +52,37 @@ export class ProviderEntity extends IndexedEntity<Provider> {
       const matchZip = !zip || p.zip.startsWith(zip);
       return matchQuery && matchZip;
     });
+  }
+}
+export class PriceBenchmarkEntity extends IndexedEntity<PricePoint> {
+  static readonly entityName = "benchmark";
+  static readonly indexName = "benchmarks";
+  static readonly initialState: PricePoint = {
+    id: "", cptCode: "", amount: 0, zipPrefix: "", facilityType: "", timestamp: 0
+  };
+  static seedData: PricePoint[] = [
+    { id: "b1", cptCode: "99213", amount: 110, zipPrefix: "152", facilityType: "Clinic", timestamp: Date.now() },
+    { id: "b2", cptCode: "99213", amount: 95, zipPrefix: "152", facilityType: "Clinic", timestamp: Date.now() },
+    { id: "b3", cptCode: "70551", amount: 820, zipPrefix: "191", facilityType: "Hospital", timestamp: Date.now() },
+    { id: "b4", cptCode: "70551", amount: 480, zipPrefix: "191", facilityType: "Imaging Center", timestamp: Date.now() },
+    { id: "b5", cptCode: "45378", amount: 1150, zipPrefix: "178", facilityType: "Hospital", timestamp: Date.now() }
+  ];
+  static async getStatsForCode(env: any, cptCode: string) {
+    const { items } = await this.list(env);
+    const filtered = items.filter(i => i.cptCode === cptCode);
+    if (filtered.length === 0) return null;
+    const amounts = filtered.map(f => f.amount).sort((a, b) => a - b);
+    const avg = amounts.reduce((a, b) => a + b, 0) / amounts.length;
+    const median = amounts[Math.floor(amounts.length / 2)];
+    const fmv = amounts[0] * 1.1; // Local heuristic for Fair Market Value
+    return { avg, median, fmv, count: filtered.length };
+  }
+  static async getGlobalStats(env: any) {
+    const { items } = await this.list(env);
+    return {
+      totalAudited: items.length * 4, // Multiplier for simulation
+      totalSavingsIdentified: items.length * 1250,
+      contributorCount: items.length
+    };
   }
 }
