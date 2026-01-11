@@ -39,7 +39,7 @@ My household size is ${household} and I am invoking my right to a 400% FPL eligi
             <span className="text-[10px] font-black uppercase tracking-widest">HB 79 Auditor</span>
           </div>
           <CardTitle>Financial Assistance Screener</CardTitle>
-          <CardDescription>Pennsylvania hospitals must screen you before pursuing debt if income < 400% FPL.</CardDescription>
+          <CardDescription>Pennsylvania hospitals must screen you before pursuing debt if income less than 400% FPL.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 flex-1">
           <div className="space-y-2">
