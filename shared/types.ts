@@ -54,7 +54,21 @@ export enum AppealIssue {
   LYME_COVERAGE = "Act 6: Lyme Disease Mandate",
   BIOMARKER_TESTING = "HB 1754: Biomarker Access",
   PBM_OVERCHARGE = "Act 77: PBM Copay/Rebate Violation",
-  MEDICAID_REDETERMINATION = "MA: Medicaid Work Log Dispute"
+  MEDICAID_REDETERMINATION = "MA: Medicaid Work Log Dispute",
+  PHARMACY_TIER_EXCEPTION = "Act 77: Pharmacy Tier Exception",
+  CLINICAL_FRAMEWORK = "Act 146: Clinical Review Framework"
+}
+export interface PolicyAuditRecord {
+  id: string;
+  planName: string;
+  deductible: number;
+  moop: number;
+  coinsurance: number;
+  isPremiumShockRisk: boolean;
+  exclusions: string[];
+  ytdSpent: number;
+  pharmacyROI: number;
+  timestamp: number;
 }
 export interface AppealTemplate {
   id: string;

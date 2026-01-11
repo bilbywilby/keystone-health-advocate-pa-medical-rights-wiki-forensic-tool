@@ -42,6 +42,11 @@ const router = createBrowserRouter([
     errorElement: <RouteErrorBoundary />,
   },
   {
+    path: "/tools/policy-audit",
+    element: <ToolsPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
     path: "/vault",
     element: <VaultPage />,
     errorElement: <RouteErrorBoundary />,

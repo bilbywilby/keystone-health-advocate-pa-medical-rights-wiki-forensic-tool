@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie';
-import { DisputeTask, WorkLog, PBMRecord } from '@shared/types';
+import { DisputeTask, WorkLog, PBMRecord, PolicyAuditRecord } from '@shared/types';
 export interface VaultItem {
   id: string;
   type: 'EOB' | 'Letter' | 'Calculation' | 'Record';
@@ -27,15 +27,17 @@ export class ValleyDB extends Dexie {
   appSettings!: Table<AppSetting>;
   workLogs!: Table<WorkLog>;
   pbmAudits!: Table<PBMRecord>;
+  policyAudits!: Table<PolicyAuditRecord>;
   constructor() {
     super('ValleyDB');
-    this.version(3).stores({
+    this.version(4).stores({
       vault: 'id, type, date, title',
       billingRecords: 'id, provider, date, status',
       tasks: 'id, status, dueDate, linkedVaultId',
       appSettings: 'key',
       workLogs: 'id, date, isExempt',
-      pbmAudits: 'id, ndc, drugName'
+      pbmAudits: 'id, ndc, drugName',
+      policyAudits: 'id, planName, timestamp'
     });
   }
 }
@@ -58,6 +60,10 @@ export async function getVaultItems() {
 export async function deleteVaultItem(id: string) {
   return db.vault.delete(id);
 }
+export async function getRecentCalculation() {
+  const items = await db.vault.where('type').equals('Calculation').toArray();
+  return items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0] || null;
+}
 export async function getTasks() {
   return db.tasks.orderBy('dueDate').toArray();
 }
@@ -73,6 +79,9 @@ export async function getWorkLogs() {
 export async function addWorkLog(log: WorkLog) {
   return db.workLogs.put(log);
 }
-export async function getPbmAudits() {
-  return db.pbmAudits.toArray();
+export async function savePolicyAudit(audit: PolicyAuditRecord) {
+  return db.policyAudits.put(audit);
+}
+export async function getPolicyAudits() {
+  return db.policyAudits.orderBy('timestamp').reverse().toArray();
 }
