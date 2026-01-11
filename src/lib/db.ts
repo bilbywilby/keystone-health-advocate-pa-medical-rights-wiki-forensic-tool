@@ -1,4 +1,5 @@
 import Dexie, { type Table } from 'dexie';
+import { DisputeTask } from '@shared/types';
 export interface VaultItem {
   id: string;
   type: 'EOB' | 'Letter' | 'Calculation' | 'Record';
@@ -15,18 +16,33 @@ export interface BillingRecord {
   status: 'pending' | 'disputed' | 'resolved';
   cptCode?: string;
 }
+export interface AppSetting {
+  key: string;
+  value: any;
+}
 export class ValleyDB extends Dexie {
   vault!: Table<VaultItem>;
   billingRecords!: Table<BillingRecord>;
+  tasks!: Table<DisputeTask>;
+  appSettings!: Table<AppSetting>;
   constructor() {
     super('ValleyDB');
-    this.version(1).stores({
+    this.version(2).stores({
       vault: 'id, type, date, title',
-      billingRecords: 'id, provider, date, status'
+      billingRecords: 'id, provider, date, status',
+      tasks: 'id, status, dueDate, linkedVaultId',
+      appSettings: 'key'
     });
   }
 }
 export const db = new ValleyDB();
+export async function getOrCreateSalt(): Promise<string> {
+  const existing = await db.appSettings.get('pii_salt');
+  if (existing) return existing.value;
+  const newSalt = crypto.randomUUID();
+  await db.appSettings.put({ key: 'pii_salt', value: newSalt });
+  return newSalt;
+}
 export async function addToVault(item: Omit<VaultItem, 'id'>) {
   const id = crypto.randomUUID();
   await db.vault.add({ ...item, id });
@@ -37,4 +53,13 @@ export async function getVaultItems() {
 }
 export async function deleteVaultItem(id: string) {
   return db.vault.delete(id);
+}
+export async function getTasks() {
+  return db.tasks.orderBy('dueDate').toArray();
+}
+export async function upsertTask(task: DisputeTask) {
+  return db.tasks.put(task);
+}
+export async function deleteTask(id: string) {
+  return db.tasks.delete(id);
 }

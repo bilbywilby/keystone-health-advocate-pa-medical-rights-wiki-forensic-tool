@@ -2,7 +2,7 @@
  * 2026 PA-specific Financial Defense Logic
  */
 export const PA_FPL_2026 = {
-  1: 15060 * 4, // 400% of FPL
+  1: 15060 * 4,
   2: 20440 * 4,
   3: 25820 * 4,
   4: 31200 * 4,
@@ -19,27 +19,22 @@ export function calculateFPLStatus(income: number, householdSize: number, debtAm
     reason: isBelow400FPL ? 'Income below 400% FPL' : isHighDebtBurden ? 'Medical debt exceeds 5% of income' : null
   };
 }
-export function calculatePremiumShock(income: number, year2025: number, year2026: number) {
-  const netChange = year2026 - year2025;
-  const incomePercent = (year2026 * 12) / income;
+export function calculateConsensusFMV(submissions: number[], threshold: number = 5) {
+  if (submissions.length < threshold) return null;
+  // Trim outliers (top/bottom 10% for robust consensus)
+  const sorted = [...submissions].sort((a, b) => a - b);
+  const trimCount = Math.floor(sorted.length * 0.1);
+  const trimmed = sorted.slice(trimCount, sorted.length - trimCount);
+  const sum = trimmed.reduce((a, b) => a + b, 0);
+  const median = trimmed[Math.floor(trimmed.length / 2)];
   return {
-    netChange,
-    incomePercent: incomePercent * 100,
-    isUnaffordable: incomePercent > 0.085, // 8.5% threshold for hardship
-    isHardshipEligible: incomePercent > 0.085 || netChange > 100
-  };
-}
-export function calculateDeductibleROI(cptCode: string, cost: number, remainingDeductible: number) {
-  // Common ROI benchmarks for PA early-year spend
-  const burnScore = Math.min(100, (cost / remainingDeductible) * 100);
-  return {
-    burnScore,
-    monthsOfCoverageGained: Math.round(burnScore / 8), // Heuristic
-    recommendation: burnScore > 50 ? 'High Priority: Front-load' : 'Monitor: Standard Schedule'
+    trimmedMean: sum / trimmed.length,
+    median,
+    confidence: submissions.length >= 10 ? 'High' : 'Medium'
   };
 }
 export function calculateSB371Audit(principal: number, currentRate: number, months: number) {
-  const legalRate = 0.03; // SB 371 cap
+  const legalRate = 0.03;
   const interestCharged = principal * (currentRate / 100) * (months / 12);
   const legalInterest = principal * legalRate * (months / 12);
   const overcharge = Math.max(0, interestCharged - legalInterest);
@@ -47,5 +42,12 @@ export function calculateSB371Audit(principal: number, currentRate: number, mont
     overcharge,
     isViolation: currentRate > 3.1,
     annualOvercharge: overcharge / (months / 12)
+  };
+}
+export function checkSB752Eligibility(isNonProfit: boolean, debtAmount: number) {
+  // SB 752 blocks aggressive collections for non-profits if financial assistance applies
+  return {
+    isProtected: isNonProfit && debtAmount > 0,
+    violationType: isNonProfit ? 'SB 752 Non-Profit Debt Block' : 'None'
   };
 }

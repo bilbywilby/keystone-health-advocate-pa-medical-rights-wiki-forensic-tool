@@ -38,8 +38,10 @@ export interface Provider {
   name: string;
   city: string;
   zip: string;
-  transparencyRating: number; // 1-5
+  transparencyRating: number;
   isCompliant: boolean;
+  sb752Compliance: boolean;
+  isNonProfit: boolean;
   type: 'Hospital' | 'Clinic' | 'Payer';
 }
 export enum AppealIssue {
@@ -48,7 +50,9 @@ export enum AppealIssue {
   INTEREST_RATE = "Illegal Interest Rate (Act 6/SB 371)",
   UNFAIR_PRICING = "Fair Market Value Dispute",
   FINANCIAL_ASSISTANCE = "HB 79 Financial Assistance Denial",
-  MEDICAL_DEBT_SHIELD = "SB 371 Medical Debt Violation"
+  MEDICAL_DEBT_SHIELD = "SB 371 Medical Debt Violation",
+  LYME_COVERAGE = "Act 6: Lyme Disease Mandate",
+  BIOMARKER_TESTING = "HB 1754: Biomarker Access"
 }
 export interface AppealTemplate {
   id: string;
@@ -80,6 +84,19 @@ export interface ScrubbedSubmission {
   facilityType: string;
   isSanitized: boolean;
 }
+export interface ScrubbedEOB extends ScrubbedSubmission {
+  hashedPII: string;
+  payerName: string;
+  serviceYear: number;
+  npi?: string;
+}
+export interface DisputeTask {
+  id: string;
+  title: string;
+  status: 'Pending' | 'Sent' | 'Resolved';
+  dueDate: string;
+  linkedVaultId?: string;
+}
 export interface CommunityStats {
   totalAudited: number;
   totalSavingsIdentified: number;
@@ -92,7 +109,7 @@ export interface CommunityStats {
 }
 export interface FPLThresholds {
   householdSize: number;
-  incomeLimit: number; // 400% FPL
+  incomeLimit: number;
 }
 export interface PremiumShockData {
   year2025: number;

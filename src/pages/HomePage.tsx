@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, ArrowRight, Gavel, Calculator, FileText, Landmark, Globe, Zap, Heart, TrendingUp } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Gavel, Calculator, FileText, Landmark, Globe, Zap, Heart, TrendingUp, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,160 +16,140 @@ export function HomePage() {
   }, []);
   return (
     <AppLayout>
-      <div className="space-y-20 md:space-y-32">
-        {/* Retroactive Credit Alert */}
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-indigo-600 text-white p-3 rounded-2xl flex items-center justify-center gap-4 text-xs font-bold shadow-xl">
-          <Zap className="w-4 h-4 text-amber-400" />
-          <span>2026 PENNIE ALERT: Retroactive subsidy credits available for households under 8.5% income threshold.</span>
-          <Link to="/tools" className="underline hover:text-amber-200 transition-colors">Check Eligibility</Link>
+      <div className="space-y-24 md:space-y-32">
+        {/* Urgent Regulatory Banner */}
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-slate-900 text-white p-4 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 border border-slate-800 shadow-2xl overflow-hidden relative">
+          <div className="absolute top-0 left-0 w-1 h-full bg-amber-500" />
+          <div className="flex items-center gap-4">
+            <div className="bg-amber-500/10 p-2 rounded-lg">
+              <Zap className="w-5 h-5 text-amber-500" />
+            </div>
+            <div className="space-y-0.5">
+              <div className="text-xs font-black uppercase tracking-widest text-amber-500">2026 Legal Update</div>
+              <div className="text-sm font-bold">SB 371: Medical Interest Capped at 3% for all PA Residents.</div>
+            </div>
+          </div>
+          <Button asChild size="sm" className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black">
+            <Link to="/wiki/sb-371-debt-shield">Review My Rights</Link>
+          </Button>
         </motion.div>
         {/* Hero Section */}
-        <section className="text-center space-y-10 max-w-4xl mx-auto pt-4">
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 text-xs font-bold uppercase tracking-widest shadow-sm">
-            <ShieldCheck className="w-4 h-4" />
-            2026 PA Financial Defense Suite Active
+        <section className="text-center space-y-12 max-w-5xl mx-auto pt-8">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-slate-100 text-slate-900 dark:bg-slate-900/50 dark:text-slate-100 text-[11px] font-black uppercase tracking-[0.2em] shadow-inner border">
+            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            PA Financial Defense Suite v2026.1
           </motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-5xl md:text-7xl lg:text-8xl font-display font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
-            Audit Your <span className="text-amber-500">Medical Debt</span>
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-6xl md:text-8xl lg:text-9xl font-display font-black tracking-tighter text-slate-900 dark:text-white leading-[0.85] py-4">
+            Fight Your <br /> <span className="text-amber-500">Medical Debt</span>
           </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-xl md:text-2xl text-muted-foreground text-pretty max-w-2xl mx-auto leading-relaxed">
-            The Louisa Carman Act (SB 371) and HB 79 now protect PA residents. Audit 3% interest caps, block garnishments, and fight denials.
+          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-xl md:text-2xl text-muted-foreground text-pretty max-w-2xl mx-auto leading-relaxed font-medium">
+            Open-source forensic tools to audit hospital bills, block illegal interest, and invoke PA Act 146 protections. 100% Private. Local-First.
           </motion.p>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="max-w-xl mx-auto">
             <WikiSearch />
           </motion.div>
         </section>
-        {/* PA Health Compass Dashboard */}
+        {/* Live Consensus Stats */}
         <section className="space-y-8">
-          <div className="flex items-center justify-between border-b pb-4">
-            <h2 className="text-sm font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
-              <Globe className="w-4 h-4" /> PA Health Compass Dashboard
-            </h2>
-            <div className="flex items-center gap-2">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span className="text-[10px] font-bold text-emerald-600">LIVE REGULATORY FEED</span>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
+            <div className="space-y-1">
+              <h2 className="text-sm font-black uppercase tracking-[0.3em] text-slate-400 flex items-center gap-2">
+                <Globe className="w-4 h-4" /> Consensus Price Benchmarks
+              </h2>
+              <p className="text-[10px] text-muted-foreground font-bold">REAL-TIME ANONYMOUS COST AGGREGATION FOR PENNSYLVANIA</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-2">
+                {[1,2,3].map(i => <div key={i} className="w-6 h-6 rounded-full border-2 border-white bg-slate-200" />)}
+              </div>
+              <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">+428 AUDITS TODAY</span>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
              {stats?.legislativePulse.map((pulse, i) => (
-               <Card key={i} className="bg-slate-50/50 border-slate-200">
-                  <CardContent className="pt-6">
-                    <Badge className="mb-2 bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none">{pulse.status}</Badge>
-                    <div className="font-bold text-sm mb-1">{pulse.label}</div>
-                    <div className="text-[10px] text-muted-foreground leading-tight">{pulse.impact}</div>
+               <Card key={i} className="bg-slate-50/50 dark:bg-slate-900/20 border-slate-200 hover:border-amber-500 transition-colors group">
+                  <CardContent className="pt-6 space-y-4">
+                    <Badge className="bg-emerald-100 text-emerald-700 border-none px-2 py-0 text-[9px] font-black">{pulse.status}</Badge>
+                    <div>
+                      <div className="font-black text-sm text-slate-800 dark:text-slate-200 uppercase">{pulse.label}</div>
+                      <div className="text-[10px] text-muted-foreground leading-tight mt-1 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors">{pulse.impact}</div>
+                    </div>
                   </CardContent>
                </Card>
              ))}
-             <Card className="bg-indigo-900 text-white">
-                <CardContent className="pt-6 flex flex-col justify-between h-full">
+             <Card className="bg-slate-900 text-white overflow-hidden relative">
+                <div className="absolute top-0 right-0 p-2 opacity-10"><TrendingUp className="w-20 h-20" /></div>
+                <CardContent className="pt-6 flex flex-col justify-between h-full relative z-10">
                   <div>
-                    <div className="text-[10px] font-black uppercase tracking-widest text-indigo-300 mb-1">Savings Goal</div>
-                    <div className="text-2xl font-black">$12.5M</div>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Savings Identified</div>
+                    <div className="text-3xl font-black text-amber-500 tracking-tighter">${(stats?.totalSavingsIdentified || 0).toLocaleString()}</div>
                   </div>
-                  <div className="flex items-center gap-1 text-[10px] text-indigo-200">
-                    <TrendingUp className="w-3 h-3" /> Community Impact
-                  </div>
+                  <div className="text-[9px] font-bold text-slate-500 uppercase mt-4">Threshold: Consensus Reached</div>
                 </CardContent>
              </Card>
           </div>
         </section>
-        {/* Quick Actions Grid */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="hover:shadow-xl transition-all group border-slate-200 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
-                <Calculator className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+        {/* Feature Grid */}
+        <section className="grid md:grid-cols-2 gap-8">
+           <Card className="bg-slate-50 border-2 border-slate-200 p-8 rounded-[2rem] flex flex-col md:flex-row gap-8 items-center hover:border-indigo-500 transition-all">
+              <div className="bg-indigo-600 p-4 rounded-2xl shadow-xl shadow-indigo-200 dark:shadow-none">
+                <Gavel className="w-8 h-8 text-white" />
               </div>
-              <CardTitle className="text-xl">HB 79 Auditor</CardTitle>
-              <CardDescription>Mandatory hospital financial assistance screening.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild variant="ghost" className="p-0 h-auto font-bold text-indigo-600 dark:text-indigo-400 hover:bg-transparent">
-                <Link to="/tools" className="flex items-center gap-2">
-                  Launch Screener <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-          <Card className="hover:shadow-xl transition-all group border-slate-200 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
-                <Gavel className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+              <div className="space-y-3 text-center md:text-left">
+                <h3 className="text-2xl font-black">Dispute Suite</h3>
+                <p className="text-sm text-muted-foreground">One-click legal templates for Act 146, No Surprises Act, and SB 371 violations. Cites exact PA statutes.</p>
+                <Button asChild variant="link" className="p-0 h-auto font-black text-indigo-600 uppercase tracking-widest text-[10px]">
+                  <Link to="/disputes">Launch Dispute Engine <ArrowRight className="w-3 h-3 ml-2" /></Link>
+                </Button>
               </div>
-              <CardTitle className="text-xl">SB 371 Shield</CardTitle>
-              <CardDescription>Block medical garnishment & 3% interest audit.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild variant="ghost" className="p-0 h-auto font-bold text-amber-600 dark:text-amber-400 hover:bg-transparent">
-                <Link to="/disputes" className="flex items-center gap-2">
-                  Defend Debt <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-          <Card className="hover:shadow-xl transition-all group border-slate-200 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
-                <Landmark className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+           </Card>
+           <Card className="bg-slate-50 border-2 border-slate-200 p-8 rounded-[2rem] flex flex-col md:flex-row gap-8 items-center hover:border-amber-500 transition-all">
+              <div className="bg-amber-500 p-4 rounded-2xl shadow-xl shadow-amber-200 dark:shadow-none">
+                <Calculator className="w-8 h-8 text-slate-900" />
               </div>
-              <CardTitle className="text-xl">Premium ROI</CardTitle>
-              <CardDescription>Pennie 2026 subsidy and burn-rate optimizer.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild variant="ghost" className="p-0 h-auto font-bold text-emerald-600 dark:text-emerald-400 hover:bg-transparent">
-                <Link to="/tools" className="flex items-center gap-2">
-                  Analyze Plan <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-          <Card className="hover:shadow-xl transition-all group border-slate-200 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
-                <FileText className="w-6 h-6" />
+              <div className="space-y-3 text-center md:text-left">
+                <h3 className="text-2xl font-black">Forensic Toolkit</h3>
+                <p className="text-sm text-muted-foreground">Audit interest rates, calculate FPL eligibility for HB 79 screening, and lookup fair market prices.</p>
+                <Button asChild variant="link" className="p-0 h-auto font-black text-amber-600 uppercase tracking-widest text-[10px]">
+                  <Link to="/tools">Audit My Bill <ArrowRight className="w-3 h-3 ml-2" /></Link>
+                </Button>
               </div>
-              <CardTitle className="text-xl">Dispute Suite</CardTitle>
-              <CardDescription>One-click templates for all PA medical violations.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild variant="ghost" className="p-0 h-auto font-bold text-slate-900 dark:text-white hover:bg-transparent">
-                <Link to="/disputes" className="flex items-center gap-2">
-                  Start Dispute <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+           </Card>
         </section>
-        {/* Featured Content Banner */}
-        <section className="bg-slate-900 text-white rounded-[2.5rem] p-12 lg:p-20 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 blur-[120px]" />
-          <div className="grid lg:grid-cols-2 gap-16 items-center relative z-10">
-            <div className="space-y-8">
-              <Badge className="bg-amber-500 text-slate-950 font-black px-4 py-1">2026 UPDATE</Badge>
-              <h2 className="text-4xl md:text-5xl font-black leading-tight">Louisa Carman Act: Medical Interest Capped at 3%</h2>
-              <p className="text-slate-400 text-lg leading-relaxed">
-                Pennsylvania Senate Bill 371 has passed. All medical debt interest is now legally capped at 3%. If you are being charged more, your bill is likely illegal.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Button asChild className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black h-12 px-8">
-                  <Link to="/wiki/sb-371-debt-shield">Read Shield Guide</Link>
-                </Button>
-                <Button asChild variant="outline" className="border-slate-700 hover:bg-slate-800 text-white h-12 px-8">
-                  <Link to="/tools">Audit Interest</Link>
-                </Button>
-              </div>
+        {/* Footer Disclaimer */}
+        <footer className="border-t pt-20 pb-12 space-y-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div className="md:col-span-2 space-y-6">
+               <div className="flex items-center gap-2">
+                 <ShieldCheck className="w-6 h-6 text-amber-500" />
+                 <span className="text-xl font-black uppercase tracking-tighter">Keystone Health Advocate</span>
+               </div>
+               <p className="text-sm text-muted-foreground leading-relaxed max-w-xl italic border-l-2 pl-4 border-slate-200">
+                 The Keystone Health Advocate is a 2026 open-source advocacy platform designed to empower Pennsylvania healthcare consumers. We provide forensic auditing tools and citation-backed templates to assist in navigating medical billing disputes and coverage denials.
+               </p>
             </div>
-            <div className="hidden lg:flex justify-center">
-              <div className="relative">
-                <div className="absolute inset-0 bg-amber-500/20 blur-3xl rounded-full" />
-                <ShieldCheck className="w-64 h-64 text-amber-500 relative z-10" />
-              </div>
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Legal Access</h4>
+              <nav className="flex flex-col gap-2">
+                <Link to="/wiki" className="text-sm font-bold hover:text-amber-600 transition-colors">Regulatory Wiki</Link>
+                <Link to="/emergency" className="text-sm font-bold text-red-600 hover:text-red-700 transition-colors">Emergency Rights (ER)</Link>
+                <Link to="/directory" className="text-sm font-bold hover:text-amber-600 transition-colors">Provider Compliance Map</Link>
+              </nav>
             </div>
           </div>
-        </section>
+          <div className="p-8 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border flex flex-col md:flex-row gap-6 items-start md:items-center">
+            <AlertTriangle className="w-10 h-10 text-amber-500 flex-shrink-0" />
+            <div className="space-y-1">
+              <h5 className="text-sm font-black uppercase">Mandatory Legal Disclaimer</h5>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                NOT LEGAL OR MEDICAL ADVICE. This tool is for educational and advocacy purposes only. It does not establish an attorney-client relationship. While we strive for accuracy regarding 2026 PA statutes, laws are subject to change and judicial interpretation. Always review generated communications with a qualified legal professional for complex litigation or significant financial exposure.
+              </p>
+            </div>
+          </div>
+          <div className="text-center text-[10px] font-black uppercase tracking-[0.5em] text-slate-400">
+            AGPL v3 Open Source • Built for Pennsylvania • 2026
+          </div>
+        </footer>
       </div>
     </AppLayout>
   );

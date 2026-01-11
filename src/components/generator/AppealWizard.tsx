@@ -8,10 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { AppealIssue } from '@shared/types';
-import { ChevronRight, ChevronLeft, Save, FileText, Stethoscope, AlertCircle, ShieldAlert } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Save, FileText, Stethoscope, AlertCircle, ShieldAlert, Printer } from 'lucide-react';
 import { addToVault } from '@/lib/db';
 import { toast } from 'sonner';
-const STEPS = ['Select Issue', 'Bill Details', 'Specialty Match', 'Review Letter'];
+const STEPS = ['Select Issue', 'Bill Details', 'Statutory Review', 'Legal Preview'];
 export function AppealWizard() {
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState(0);
@@ -22,15 +22,15 @@ export function AppealWizard() {
     billDate: '',
     accountNumber: '',
     details: '',
-    denyingDoctorNPI: '',
     denyingDoctorSpecialty: '',
-    orderingDoctorSpecialty: ''
+    orderingDoctorSpecialty: '',
+    statuteCite: 'PA Act 146'
   });
   useEffect(() => {
     const typeParam = searchParams.get('type');
     if (typeParam && Object.keys(AppealIssue).includes(typeParam)) {
       setFormData(prev => ({ ...prev, issue: AppealIssue[typeParam as keyof typeof AppealIssue] }));
-      setStep(1); // Auto-advance to details if type is pre-selected
+      setStep(1);
     }
   }, [searchParams]);
   const next = () => setStep(s => Math.min(s + 1, STEPS.length - 1));
@@ -40,113 +40,136 @@ export function AppealWizard() {
                      formData.denyingDoctorSpecialty.toLowerCase().trim() !== formData.orderingDoctorSpecialty.toLowerCase().trim();
   const generateLetter = () => {
     const today = new Date().toLocaleDateString();
-    let statute = "PA Act 146";
-    if (formData.issue === AppealIssue.BALANCE_BILLING) statute = "Federal No Surprises Act";
-    if (formData.issue === AppealIssue.INTEREST_RATE) statute = "PA SB 371 / Act 6";
-    if (formData.issue === AppealIssue.FINANCIAL_ASSISTANCE) statute = "PA HB 79";
-    const mismatchCite = isMismatch ? `\n\nCRITICAL VIOLATION: Under PA Act 146, Section 2116, medical denials must be reviewed by a physician in the same or similar specialty as the requesting provider. The denying physician (${formData.denyingDoctorSpecialty}) does not match the ordering specialist (${formData.orderingDoctorSpecialty}). This denial is procedurally invalid.` : '';
+    let cite = "PA Act 146";
+    if (formData.issue === AppealIssue.BALANCE_BILLING) cite = "Federal No Surprises Act";
+    if (formData.issue === AppealIssue.INTEREST_RATE) cite = "PA SB 371 / Act 6";
+    if (formData.issue === AppealIssue.FINANCIAL_ASSISTANCE) cite = "PA HB 79 / SB 752";
+    if (formData.issue === AppealIssue.LYME_COVERAGE) cite = "PA Act 6 of 2020";
+    const specialtyViolation = isMismatch ? `\n\nLEGAL NOTICE: Under PA Insurance Company Law Section 991.2116, this denial is procedurally deficient. A physician in ${formData.denyingDoctorSpecialty} may not deny services ordered by a specialist in ${formData.orderingDoctorSpecialty}. I demand immediate reversal or external review.` : '';
     return `
 Date: ${today}
-To: Grievance & Appeals Department, ${formData.providerName}
-Subject: Formal Dispute - Account #${formData.accountNumber || 'N/A'}
-Dear Appeals Coordinator,
-I am writing to formally dispute the medical bill/denial received on ${formData.billDate || '[DATE]'} regarding services for ${formData.patientName || '[NAME]'}.
-This dispute is based on non-compliance with ${statute}.${mismatchCite}
-Further details:
-${formData.details || 'The charges/denial provided do not align with established state transparency and consumer protection standards.'}
-Under Pennsylvania law, I request a full review of this file and a written response within 30 days.
+To: Consumer Grievance Department, ${formData.providerName}
+Reference: Account #${formData.accountNumber || 'PENDING'}
+FORMAL NOTICE OF DISPUTE PURSUANT TO ${cite.toUpperCase()}
+Dear Grievance Coordinator,
+I am writing to formally dispute the determination dated ${formData.billDate || '[DATE]'}. Under Pennsylvania law, I am invoking my consumer protection rights regarding ${formData.issue}.
+DISPUTE BASIS:
+${formData.details || 'The provider has failed to demonstrate compliance with state transparency and clinical review standards.'}${specialtyViolation}
+Under the Fair Credit Extension Uniformity Act (FCEUA), this debt is formally disputed. Any reporting to credit bureaus during this 30-day resolution window is a violation of state law.
+I request a written response confirming the receipt of this dispute and the initiation of a formal peer-to-peer review by a licensed practitioner matching my ordering physician's specialty.
 Sincerely,
-${formData.patientName || '[YOUR NAME]'}
+${formData.patientName || '[Patient Name Signature]'}
     `.trim();
   };
   const handleSave = async () => {
     await addToVault({
       type: 'Letter',
       date: new Date().toISOString(),
-      title: `Appeal: ${formData.issue}`,
+      title: `Legal Appeal: ${formData.issue}`,
       content: generateLetter(),
       metadata: { ...formData, isSpecialtyMismatch: isMismatch }
     });
-    toast.success('Appeal letter saved to Privacy Vault');
+    toast.success('Dispute letter archived in local Vault');
     setStep(0);
   };
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="mb-8 flex justify-between items-center px-2">
+      <div className="mb-10 flex justify-between items-center px-4">
         {STEPS.map((s, i) => (
           <div key={s} className="flex items-center gap-2">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${step >= i ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-500'}`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-black border-2 transition-all ${step >= i ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-400'}`}>
               {i + 1}
             </div>
-            <span className={`text-xs font-medium hidden sm:block ${step >= i ? 'text-slate-900' : 'text-slate-400'}`}>{s}</span>
-            {i < STEPS.length - 1 && <div className="w-8 sm:w-16 h-px bg-slate-200 mx-2" />}
+            <span className={`text-[10px] font-bold uppercase tracking-widest hidden md:block ${step >= i ? 'text-slate-900' : 'text-slate-400'}`}>{s}</span>
+            {i < STEPS.length - 1 && <div className={`w-4 md:w-12 h-0.5 transition-colors ${step > i ? 'bg-slate-900' : 'bg-slate-200'}`} />}
           </div>
         ))}
       </div>
       <AnimatePresence mode="wait">
-        <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-          <Card className="shadow-lg border-slate-200">
+        <motion.div key={step} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+          <Card className="shadow-xl border-slate-200 overflow-hidden">
             {step === 0 && (
-              <CardContent className="pt-6 grid gap-3">
+              <CardContent className="pt-8 grid gap-4">
                 {Object.values(AppealIssue).map((issue) => (
-                  <button key={issue} onClick={() => { setFormData({ ...formData, issue }); next(); }} className={`text-left p-4 rounded-lg border-2 transition-all ${formData.issue === issue ? 'border-amber-500 bg-amber-50/30' : 'border-slate-100 hover:border-slate-300'}`}>
-                    <div className="font-semibold text-sm">{issue}</div>
+                  <button key={issue} onClick={() => { setFormData({ ...formData, issue }); next(); }} className={`text-left p-5 rounded-xl border-2 transition-all group ${formData.issue === issue ? 'border-amber-500 bg-amber-50/50' : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50'}`}>
+                    <div className="flex justify-between items-center">
+                      <span className="font-bold text-sm text-slate-800">{issue}</span>
+                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-amber-500 transition-colors" />
+                    </div>
                   </button>
                 ))}
               </CardContent>
             )}
             {step === 1 && (
-              <CardContent className="pt-6 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>Patient Name</Label><Input value={formData.patientName} onChange={e => setFormData({ ...formData, patientName: e.target.value })} /></div>
-                  <div className="space-y-2"><Label>Hospital/Payer</Label><Input value={formData.providerName} onChange={e => setFormData({ ...formData, providerName: e.target.value })} /></div>
+              <CardContent className="pt-8 space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2"><Label>Full Patient Name</Label><Input value={formData.patientName} onChange={e => setFormData({ ...formData, patientName: e.target.value })} placeholder="As on Insurance Card" /></div>
+                  <div className="space-y-2"><Label>Provider/Payer Name</Label><Input value={formData.providerName} onChange={e => setFormData({ ...formData, providerName: e.target.value })} placeholder="e.g. UPMC Health Plan" /></div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2"><Label>Date of Denial</Label><Input type="date" value={formData.billDate} onChange={e => setFormData({ ...formData, billDate: e.target.value })} /></div>
-                  <div className="space-y-2"><Label>Account #</Label><Input value={formData.accountNumber} onChange={e => setFormData({ ...formData, accountNumber: e.target.value })} /></div>
+                  <div className="space-y-2"><Label>Claim/Account Number</Label><Input value={formData.accountNumber} onChange={e => setFormData({ ...formData, accountNumber: e.target.value })} placeholder="Required for identification" /></div>
                 </div>
-                <div className="space-y-2"><Label>Why is this unfair?</Label><Textarea value={formData.details} onChange={e => setFormData({ ...formData, details: e.target.value })} /></div>
+                <div className="space-y-2"><Label>Factual Details of Denial</Label><Textarea className="min-h-[100px]" value={formData.details} onChange={e => setFormData({ ...formData, details: e.target.value })} placeholder="Explain why the charge or denial is incorrect..." /></div>
               </CardContent>
             )}
             {step === 2 && (
-              <CardContent className="pt-6 space-y-6">
-                <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex gap-3">
-                  <Stethoscope className="w-5 h-5 text-indigo-500" />
-                  <p className="text-xs text-indigo-700 leading-relaxed">
-                    <strong>Act 146 Enforcement:</strong> Denials must be reviewed by a peer in the same specialty. GP's cannot deny Orthopedic requests. Check your denial letter for the "Reviewing Physician" details.
-                  </p>
+              <CardContent className="pt-8 space-y-6">
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex gap-4">
+                  <AlertCircle className="w-6 h-6 text-amber-600 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-bold text-sm text-amber-900">Act 146 (§991.2116) Enforcement</h4>
+                    <p className="text-xs text-amber-700 leading-relaxed mt-1">
+                      Denials are often invalid if the reviewing physician's specialty does not match the ordering doctor. Ensure you enter the exact specialties from your denial letter.
+                    </p>
+                  </div>
                 </div>
-                <div className="space-y-4">
-                  <div className="space-y-2"><Label>Ordering Doctor Specialty</Label><Input placeholder="e.g. Orthopedic Surgery" value={formData.orderingDoctorSpecialty} onChange={e => setFormData({...formData, orderingDoctorSpecialty: e.target.value})} /></div>
-                  <div className="space-y-2"><Label>Denying Doctor Specialty (on letter)</Label><Input placeholder="e.g. General Practice" value={formData.denyingDoctorSpecialty} onChange={e => setFormData({...formData, denyingDoctorSpecialty: e.target.value})} /></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label>Ordering Doctor Specialty</Label>
+                    <Input placeholder="e.g. Cardiology" value={formData.orderingDoctorSpecialty} onChange={e => setFormData({...formData, orderingDoctorSpecialty: e.target.value})} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Reviewing Physician Specialty</Label>
+                    <Input placeholder="e.g. Internal Medicine" value={formData.denyingDoctorSpecialty} onChange={e => setFormData({...formData, denyingDoctorSpecialty: e.target.value})} />
+                  </div>
                 </div>
                 {isMismatch && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700">
-                    <ShieldAlert className="w-5 h-5" />
-                    <span className="text-sm font-bold">Act 146 Mismatch Detected! Citing Section 2116.</span>
-                  </div>
+                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-4 text-red-700">
+                    <ShieldAlert className="w-6 h-6" />
+                    <span className="text-sm font-black">STATUTORY VIOLATION DETECTED (§991.2116)</span>
+                  </motion.div>
                 )}
               </CardContent>
             )}
             {step === 3 && (
-              <CardContent className="pt-6 space-y-4">
-                 <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Legal Strength</span>
-                    <Badge className={isMismatch ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}>
-                      {isMismatch ? 'High: Procedural Violation' : 'Medium: Standards Audit'}
-                    </Badge>
+              <CardContent className="pt-8 space-y-6">
+                 <div className="flex justify-between items-center bg-slate-100 p-4 rounded-xl border">
+                    <div className="flex items-center gap-2">
+                       <FileText className="w-5 h-5 text-slate-500" />
+                       <span className="text-xs font-bold uppercase tracking-widest text-slate-600">Generated Legal Draft</span>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => window.print()} className="h-8 text-[10px] font-bold">
+                       <Printer className="w-3 h-3 mr-1" /> PRINT TO PDF
+                    </Button>
                  </div>
-                 <div className="bg-slate-50 border rounded-lg p-6 font-mono text-[10px] whitespace-pre-wrap leading-relaxed max-h-[300px] overflow-y-auto dark:bg-slate-900">
+                 <div className="bg-white border-2 border-slate-200 shadow-inner rounded-lg p-10 font-serif text-sm whitespace-pre-wrap leading-relaxed min-h-[400px] max-h-[500px] overflow-y-auto text-slate-900 selection:bg-amber-100">
                     {generateLetter()}
                  </div>
               </CardContent>
             )}
-            <CardFooter className="flex justify-between border-t p-6">
-              <Button variant="ghost" onClick={prev} disabled={step === 0}>Back</Button>
+            <CardFooter className="flex justify-between border-t bg-slate-50/50 p-6">
+              <Button variant="ghost" onClick={prev} disabled={step === 0} className="font-bold">
+                <ChevronLeft className="w-4 h-4 mr-2" /> Previous
+              </Button>
               {step === STEPS.length - 1 ? (
-                <Button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700 text-white">Save to Vault</Button>
+                <Button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-8">
+                  <Save className="w-4 h-4 mr-2" /> Archive to Vault
+                </Button>
               ) : (
-                <Button onClick={next} className="bg-amber-500 hover:bg-amber-600 text-white">Next Step</Button>
+                <Button onClick={next} className="bg-slate-900 hover:bg-black text-white font-black px-8">
+                  Continue <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
               )}
             </CardFooter>
           </Card>
