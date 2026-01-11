@@ -84,7 +84,8 @@ function runSetupCommands() {
     "bun add dexie@^4.0.8",
     "bun add dexie",
     "bun add framer-motion",
-    "bun add date-fns"
+    "bun add date-fns",
+    "bun add react-router-dom"
 ];
     
     if (commands.length === 0) {
