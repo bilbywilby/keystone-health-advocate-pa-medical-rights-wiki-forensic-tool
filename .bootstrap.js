@@ -82,7 +82,8 @@ function runSetupCommands() {
     "bun add rehype-raw@^7.0.0",
     "bun add dompurify@^3.1.7",
     "bun add dexie@^4.0.8",
-    "bun add dexie"
+    "bun add dexie",
+    "bun add framer-motion"
 ];
     
     if (commands.length === 0) {
