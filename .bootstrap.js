@@ -81,7 +81,8 @@ function runSetupCommands() {
     "bun add react-markdown@^9.0.1",
     "bun add rehype-raw@^7.0.0",
     "bun add dompurify@^3.1.7",
-    "bun add dexie@^4.0.8"
+    "bun add dexie@^4.0.8",
+    "bun add dexie"
 ];
     
     if (commands.length === 0) {
