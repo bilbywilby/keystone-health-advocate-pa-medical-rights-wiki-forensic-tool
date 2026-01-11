@@ -12,6 +12,7 @@ import { getWizardRecommendation } from '@/lib/calculations';
 import { ChevronRight, ChevronLeft, Save, FileText, AlertCircle, ShieldAlert, Printer, ExternalLink, Phone, Volume2, HelpCircle } from 'lucide-react';
 import { addToVault } from '@/lib/db';
 import { toast } from 'sonner';
+import { cn } from "@/lib/utils";
 const STEPS = ['Assess Rights', 'Bill Details', 'Statutory Review', 'Legal Preview', 'Escalate to State'];
 export function AppealWizard() {
   const [searchParams] = useSearchParams();
@@ -38,8 +39,8 @@ export function AppealWizard() {
   }, [searchParams]);
   const next = () => setStep(s => Math.min(s + 1, STEPS.length - 1));
   const prev = () => setStep(s => Math.max(s - 1, 0));
-  const isMismatch = formData.denyingDoctorSpecialty && 
-                     formData.orderingDoctorSpecialty && 
+  const isMismatch = formData.denyingDoctorSpecialty &&
+                     formData.orderingDoctorSpecialty &&
                      formData.denyingDoctorSpecialty.toLowerCase().trim() !== formData.orderingDoctorSpecialty.toLowerCase().trim();
   const handleWizardAnswer = (key: string, value: boolean) => {
     const nextAnswers = { ...answers, [key]: value };

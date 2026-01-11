@@ -8,6 +8,7 @@ import { AccessibilityProvider } from "@/hooks/use-accessibility";
 import { api } from "@/lib/api-client";
 import { CommunityStats } from "@shared/types";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 const NAV_ITEMS = [
   { label: "Home Dashboard", icon: Home, path: "/" },
   { label: "Rights Wiki", icon: BookOpen, path: "/wiki" },

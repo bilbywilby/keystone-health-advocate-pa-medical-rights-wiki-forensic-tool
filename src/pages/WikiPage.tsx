@@ -7,6 +7,9 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { Copy, ChevronRight, BookOpen, Flag, Info, Users } from 'lucide-react';
 import { toast } from 'sonner';
 export function WikiPage() {
@@ -63,7 +66,7 @@ export function WikiPage() {
             </Card>
             {list.map((a) => (
               <Link key={a.id} to={`/wiki/${a.slug}`}>
-                <div className="p-6 border rounded-2xl hover:border-amber-500 hover:shadow-lg transition-all group h-full flex flex-col justify-between bg-white dark:bg-slate-950">
+                <Card className="p-6 border rounded-2xl hover:border-amber-500 hover:shadow-lg transition-all group h-full flex flex-col justify-between bg-white dark:bg-slate-950">
                   <div className="space-y-3">
                     <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest">{a.category}</Badge>
                     <h3 className="font-black text-xl group-hover:text-amber-600 transition-colors leading-tight">{a.title}</h3>
@@ -72,7 +75,7 @@ export function WikiPage() {
                   <div className="pt-4 flex items-center text-xs text-amber-600 font-bold uppercase tracking-widest">
                     Read SOP <ChevronRight className="w-4 h-4 ml-1" />
                   </div>
-                </div>
+                </Card>
               </Link>
             ))}
           </div>
