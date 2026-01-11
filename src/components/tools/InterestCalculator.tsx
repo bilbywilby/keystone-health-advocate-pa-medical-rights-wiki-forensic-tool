@@ -5,7 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { addToVault } from '@/lib/db';
 import { toast } from 'sonner';
-import { AlertCircle, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { AlertCircle, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
 export function InterestCalculator() {
   const [originalDebt, setOriginalDebt] = useState<string>('');
   const [currentBalance, setCurrentBalance] = useState<string>('');
@@ -29,14 +30,13 @@ export function InterestCalculator() {
       return;
     }
     // SB 371 (Louisa Carman Act) standard: 3% APR
-    // Rate = (Interest / Principal) / (Months / 12)
     const annualRate = (interestAmount / principal) / (months / 12);
     const maxLegalInterest = principal * (0.03 * (months / 12));
     const overcharge = Math.max(0, interestAmount - maxLegalInterest);
     setResult({
       rate: annualRate * 100,
       overcharge,
-      isIllegal: annualRate > 0.0305 // Flagging if strictly over 3.05%
+      isIllegal: annualRate > 0.0305
     });
   };
   const saveToVault = async () => {
@@ -45,7 +45,7 @@ export function InterestCalculator() {
       type: 'Calculation',
       date: new Date().toISOString(),
       title: 'Interest Rate Audit (SB 371)',
-      content: `Principal: $${originalDebt}\nCurrent: $${currentBalance}\nEstimated Rate: ${result.rate.toFixed(2)}%\nLegal Limit: 3.0% (SB 371)\nEstimated Overcharge: $${result.overcharge.toFixed(2)}`,
+      content: `Principal: ${originalDebt}\nCurrent: ${currentBalance}\nEstimated Rate: ${result.rate.toFixed(2)}%\nLegal Limit: 3.0% (SB 371)\nEstimated Overcharge: ${result.overcharge.toFixed(2)}`,
       metadata: { originalDebt, currentBalance, result }
     });
     toast.success('Saved to Privacy Vault');
@@ -99,14 +99,16 @@ export function InterestCalculator() {
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed italic">
               {result.isIllegal
-                ? "This rate exceeds the 3% cap mandated by PA SB 371 (The Louisa Carman Act). Any interest charged above 3% is likely illegal and subject to triple-damage recovery under state consumer protection laws."
+                ? "This rate exceeds the 3% cap mandated by PA SB 371 (The Louisa Carman Act). Any interest charged above 3% is likely illegal."
                 : "This interest rate is within the legal 3% ceiling established for PA medical debt in 2026."}
             </p>
             <div className="flex gap-2">
               <Button onClick={saveToVault} variant="outline" className="flex-1">Save to Vault</Button>
               {result.isIllegal && (
                 <Button asChild className="flex-1 bg-red-600 hover:bg-red-700 text-white">
-                   <button onClick={() => toast.info('Navigating to Appeal Generator...')}>Generate Dispute</button>
+                   <Link to="/appeal-generator?type=INTEREST_RATE">
+                     Dispute <ArrowRight className="w-3 h-3 ml-1" />
+                   </Link>
                 </Button>
               )}
             </div>

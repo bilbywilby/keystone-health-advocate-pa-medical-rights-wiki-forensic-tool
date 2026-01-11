@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShieldCheck, AlertTriangle, CheckCircle2, FileText, Landmark, Zap, Gavel } from 'lucide-react';
-import { calculateFPLStatus, checkSB752Eligibility, getHB79DischargeStatus } from '@/lib/calculations';
+import { calculateFPLStatus, getHB79DischargeStatus } from '@/lib/calculations';
 import { addToVault } from '@/lib/db';
 import { toast } from 'sonner';
 const HOSPITALS = [
@@ -23,7 +23,7 @@ export function FinancialDefense() {
     calculateFPLStatus(Number(income) || 0, Number(household), Number(debt) || 0),
     [income, household, debt]
   );
-  const hb79 = useMemo(() => 
+  const hb79 = useMemo(() =>
     getHB79DischargeStatus(Number(income) || 0, Number(debt) || 0, Number(household)),
     [income, debt, household]
   );
@@ -33,9 +33,9 @@ HB 79 STATE DISCHARGE & SCREENING NOTICE
 To: Billing Compliance Officer, ${selectedHospital.name}
 Date: ${new Date().toLocaleDateString()}
 RE: PRESUMPTIVE ELIGIBILITY FOR DEBT DISCHARGE PURSUANT TO HB 79 SECTION 504
-I am providing formal notice that my medical debt ($${debt}) qualifies for presumptive assistance under Pennsylvania HB 79. 
+I am providing formal notice that my medical debt (${debt}) qualifies for presumptive assistance under Pennsylvania HB 79.
 Basis: ${fpl.reason}.
-STATUTORY REQUIREMENT: 
+STATUTORY REQUIREMENT:
 Section 504 of HB 79 mandates a stay of all collection activities, including interest accrual and credit reporting, until a formal financial assistance screening is completed. I request an application for your Financial Assistance Program (FAP) immediately.
 Under SB 752, as a non-profit facility, failing to screen before collection constitutes a violation of your tax-exempt community benefit requirement.
 Sincerely,
