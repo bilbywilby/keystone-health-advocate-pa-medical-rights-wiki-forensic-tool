@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { ShieldCheck, Calendar, Clock, FileText } from 'lucide-react';
-import { addWorkLog, getWorkLogs } from '@/lib/db';
+import { ShieldCheck, Calendar, Clock, AlertCircle, FileText, CheckCircle2, ChevronRight } from 'lucide-react';
+import { db, addWorkLog, getWorkLogs } from '@/lib/db';
 import { WorkLog } from '@shared/types';
 import { checkMedicaidCompliance } from '@/lib/calculations';
 import { toast } from 'sonner';
@@ -95,8 +94,8 @@ export function MedicaidGuard() {
               <div className="relative inline-block">
                 <svg className="w-32 h-32 transform -rotate-90">
                   <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-slate-800" />
-                  <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="12" fill="transparent"
-                    strokeDasharray={364.4} strokeDashoffset={364.4 - (364.4 * Math.min(1, compliance.totalHours / 80))}
+                  <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="12" fill="transparent" 
+                    strokeDasharray={364.4} strokeDashoffset={364.4 - (364.4 * Math.min(1, compliance.totalHours / 80))} 
                     className="text-emerald-500 transition-all duration-1000" />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -127,8 +126,8 @@ export function MedicaidGuard() {
               <p className="text-xs text-muted-foreground leading-relaxed italic">
                 Are you caring for a child under 13 or an incapacitated adult? You may be exempt from the 80-hour requirement.
               </p>
-              <Button
-                variant="outline"
+              <Button 
+                variant="outline" 
                 className={`w-full text-xs font-bold ${newEntry.isExempt ? 'bg-amber-50 border-amber-500 text-amber-700' : ''}`}
                 onClick={() => setNewEntry({...newEntry, isExempt: !newEntry.isExempt})}
               >

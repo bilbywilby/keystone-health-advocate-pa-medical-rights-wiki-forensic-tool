@@ -4,8 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShieldCheck, AlertTriangle, CheckCircle2, FileText, Landmark, Zap, Gavel, Search } from 'lucide-react';
-import { calculateFPLStatus, checkSB752Eligibility } from '@/lib/calculations';
+import { ShieldCheck, AlertTriangle, CheckCircle2, FileText, Landmark, Zap, Gavel } from 'lucide-react';
+import { calculateFPLStatus, checkSB752Eligibility, getHB79DischargeStatus } from '@/lib/calculations';
 import { addToVault } from '@/lib/db';
 import { toast } from 'sonner';
 const HOSPITALS = [
@@ -23,23 +23,31 @@ export function FinancialDefense() {
     calculateFPLStatus(Number(income) || 0, Number(household), Number(debt) || 0),
     [income, household, debt]
   );
-  const sb752 = useMemo(() => 
-    checkSB752Eligibility(selectedHospital.isNonProfit, Number(debt) || 0),
-    [selectedHospital, debt]
+  const hb79 = useMemo(() => 
+    getHB79DischargeStatus(Number(income) || 0, Number(debt) || 0, Number(household)),
+    [income, debt, household]
   );
-  const saveHB79Request = async () => {
-    const letter = `Subject: Mandatory Financial Assistance Screening Request (HB 79 / SB 752)
-Dear Billing Department at ${selectedHospital.name},
-Under PA HB 79 and the non-profit debt-block provisions of SB 752, I am requesting a formal screening for financial assistance.
-As my debt exceeds 5% of my household income or my income is below 400% FPL, state law mandates a collection stay during this review.
-Please pause all interest accrual and collection activities immediately.`;
+  const saveHB79Notice = async () => {
+    const letter = `
+HB 79 STATE DISCHARGE & SCREENING NOTICE
+To: Billing Compliance Officer, ${selectedHospital.name}
+Date: ${new Date().toLocaleDateString()}
+RE: PRESUMPTIVE ELIGIBILITY FOR DEBT DISCHARGE PURSUANT TO HB 79 SECTION 504
+I am providing formal notice that my medical debt ($${debt}) qualifies for presumptive assistance under Pennsylvania HB 79. 
+Basis: ${fpl.reason}.
+STATUTORY REQUIREMENT: 
+Section 504 of HB 79 mandates a stay of all collection activities, including interest accrual and credit reporting, until a formal financial assistance screening is completed. I request an application for your Financial Assistance Program (FAP) immediately.
+Under SB 752, as a non-profit facility, failing to screen before collection constitutes a violation of your tax-exempt community benefit requirement.
+Sincerely,
+[Signature Required]
+    `.trim();
     await addToVault({
       type: 'Letter',
       date: new Date().toISOString(),
-      title: `HB 79/SB 752 Demand - ${selectedHospital.name}`,
+      title: `HB 79 Discharge Notice - ${selectedHospital.name}`,
       content: letter
     });
-    toast.success('SB 752 Legal Demand saved to Vault');
+    toast.success('State Discharge Notice saved to Vault');
   };
   return (
     <div className="grid md:grid-cols-2 gap-8">
@@ -47,15 +55,15 @@ Please pause all interest accrual and collection activities immediately.`;
         <CardHeader>
           <div className="flex items-center gap-2 text-indigo-600 mb-2">
             <Landmark className="w-5 h-5" />
-            <span className="text-[10px] font-black uppercase tracking-widest">HB 79 Auditor</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">HB 79 / SB 752 Auditor</span>
           </div>
-          <CardTitle>Financial Assistance & SB 752</CardTitle>
+          <CardTitle>Financial Defense Screener</CardTitle>
           <CardDescription>Screening mandates for non-profit PA hospitals.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 flex-1">
           <div className="space-y-2">
             <Label>Select Facility</Label>
-            <select 
+            <select
               className="w-full h-10 px-3 py-2 bg-background border border-input rounded-md text-sm"
               onChange={(e) => setSelectedHospital(HOSPITALS.find(h => h.name === e.target.value) || HOSPITALS[0])}
             >
@@ -72,7 +80,7 @@ Please pause all interest accrual and collection activities immediately.`;
               <Input type="number" value={household} onChange={e => setHousehold(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>Total Medical Debt</Label>
+              <Label>Total Medical Debt ($)</Label>
               <Input type="number" value={debt} onChange={e => setDebt(e.target.value)} />
             </div>
           </div>
@@ -80,15 +88,15 @@ Please pause all interest accrual and collection activities immediately.`;
             <div className={`p-4 rounded-xl border-2 transition-all ${fpl.isEligible ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-600'}`}>
               <div className="flex items-center gap-2 font-bold mb-1 text-sm">
                 {fpl.isEligible ? <CheckCircle2 className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
-                {fpl.isEligible ? 'Eligible for Mandatory Assistance' : 'Standard Hardship Only'}
+                {hb79.status}
               </div>
-              <p className="text-[10px] leading-tight opacity-80">{fpl.reason || 'Consider SB 752 protection if collections are active.'}</p>
+              <p className="text-[10px] leading-tight opacity-80">{fpl.reason || 'Consider hardship review if debt is high.'}</p>
             </div>
           )}
         </CardContent>
         <CardFooter>
-          <Button onClick={saveHB79Request} className="w-full bg-slate-900 text-white" disabled={!fpl.isEligible}>
-            <FileText className="w-4 h-4 mr-2" /> Generate Cease & Desist
+          <Button onClick={saveHB79Notice} className="w-full bg-slate-900 text-white" disabled={!fpl.isEligible}>
+            <FileText className="w-4 h-4 mr-2" /> Generate State Discharge Notice
           </Button>
         </CardFooter>
       </Card>

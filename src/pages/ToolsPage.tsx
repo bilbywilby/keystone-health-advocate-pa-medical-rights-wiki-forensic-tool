@@ -6,44 +6,54 @@ import { FMVLookup } from '@/components/tools/FMVLookup';
 import { PricingContribution } from '@/components/tools/PricingContribution';
 import { FinancialDefense } from '@/components/tools/FinancialDefense';
 import { PremiumNavigator } from '@/components/tools/PremiumNavigator';
+import { PharmacyAuditor } from '@/components/tools/PharmacyAuditor';
+import { MedicaidGuard } from '@/components/tools/MedicaidGuard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, Info, Users, ShieldCheck, Zap } from 'lucide-react';
+import { AlertCircle, Info, ShieldCheck, Zap, Pill, Heart } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 export function ToolsPage() {
   return (
     <AppLayout>
-      <div className="space-y-12">
+      <div className="max-w-7xl mx-auto space-y-12">
         <section className="space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
               <h1 className="text-4xl font-extrabold tracking-tight">Forensic Advocacy Toolkit</h1>
               <p className="text-lg text-muted-foreground max-w-2xl">
-                2026 PA Financial Defense Suite. Audit bills, screen for assistance, and protect against medical debt.
+                2026 PA Financial Defense Suite. Audit bills, track pharmacy rebates, and protect Medicaid coverage.
               </p>
             </div>
             <div className="hidden lg:flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-xl">
               <Zap className="w-4 h-4 text-indigo-500" />
-              <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-700">SB 371 Active: 3% Cap</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-700">Act 77 & HB 79 Active</div>
             </div>
           </div>
           <Alert className="bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-900 max-w-2xl">
             <Info className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             <AlertTitle className="text-amber-800 dark:text-amber-300">Privacy Notice</AlertTitle>
             <AlertDescription className="text-amber-700 dark:text-amber-400/80">
-              All audits are performed locally. Your personal data never leaves your device. HIPAA-compliant by design.
+              All audits and work logs are stored locally. Your sensitive data never leaves your device. HIPAA-compliant by design.
             </AlertDescription>
           </Alert>
         </section>
         <Tabs defaultValue="defense" className="space-y-8">
-          <TabsList className="grid w-full max-w-2xl grid-cols-5">
-            <TabsTrigger value="defense">Defense</TabsTrigger>
-            <TabsTrigger value="pennie">Premiums</TabsTrigger>
-            <TabsTrigger value="fmv">Prices</TabsTrigger>
-            <TabsTrigger value="interest">Interest</TabsTrigger>
-            <TabsTrigger value="contribute">Share</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 h-auto bg-transparent">
+            <TabsTrigger value="defense" className="data-[state=active]:bg-slate-900 data-[state=active]:text-white border">Defense</TabsTrigger>
+            <TabsTrigger value="pharmacy" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white border"><Pill className="w-3 h-3 mr-2" /> Pharmacy</TabsTrigger>
+            <TabsTrigger value="medicaid" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white border"><Heart className="w-3 h-3 mr-2" /> Medicaid</TabsTrigger>
+            <TabsTrigger value="pennie" className="data-[state=active]:bg-slate-900 data-[state=active]:text-white border">Premiums</TabsTrigger>
+            <TabsTrigger value="fmv" className="data-[state=active]:bg-slate-900 data-[state=active]:text-white border">Prices</TabsTrigger>
+            <TabsTrigger value="interest" className="data-[state=active]:bg-slate-900 data-[state=active]:text-white border">Interest</TabsTrigger>
+            <TabsTrigger value="contribute" className="data-[state=active]:bg-slate-900 data-[state=active]:text-white border">Share</TabsTrigger>
           </TabsList>
           <TabsContent value="defense">
             <FinancialDefense />
+          </TabsContent>
+          <TabsContent value="pharmacy">
+            <PharmacyAuditor />
+          </TabsContent>
+          <TabsContent value="medicaid">
+            <MedicaidGuard />
           </TabsContent>
           <TabsContent value="pennie">
             <PremiumNavigator />
@@ -69,8 +79,9 @@ export function ToolsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="text-xs text-muted-foreground leading-relaxed space-y-2">
+              <p><strong>Act 77 (Pharmacy Transparency):</strong> Enforced. PBMs must pass through rebates and honor "Lesser Of" pricing at point-of-sale.</p>
               <p><strong>HB 79 (Financial Assistance):</strong> Enforced. Hospitals must offer assistance if debt exceeds 5% of income or income is below 400% FPL.</p>
-              <p><strong>SB 371 (Louisa Carman Act):</strong> Enforced. Maximum medical interest rate is 3%. Wage garnishment blocked for households under 600% FPL.</p>
+              <p><strong>MA Redetermination:</strong> 80-hour monthly community engagement requirement active for able-bodied adults with exemptions for caregivers.</p>
             </CardContent>
           </Card>
           <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200">
@@ -81,7 +92,7 @@ export function ToolsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="text-xs text-muted-foreground leading-relaxed">
-              If a provider refuses to honor the SB 371 interest cap or HB 79 screening mandate, contact the <strong>PA Attorney General’s Health Care Section</strong> or the Insurance Department Consumer Bureau at 1-877-881-6388.
+              If a PBM refuses an Act 77 audit or a hospital blocks HB 79 screening, contact the <strong>PA Insurance Department</strong> at 1-877-881-6388. For Medicaid redetermination help, contact your local County Assistance Office (CAO).
             </CardContent>
           </Card>
         </section>

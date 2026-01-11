@@ -52,7 +52,9 @@ export enum AppealIssue {
   FINANCIAL_ASSISTANCE = "HB 79 Financial Assistance Denial",
   MEDICAL_DEBT_SHIELD = "SB 371 Medical Debt Violation",
   LYME_COVERAGE = "Act 6: Lyme Disease Mandate",
-  BIOMARKER_TESTING = "HB 1754: Biomarker Access"
+  BIOMARKER_TESTING = "HB 1754: Biomarker Access",
+  PBM_OVERCHARGE = "Act 77: PBM Copay/Rebate Violation",
+  MEDICAID_REDETERMINATION = "MA: Medicaid Work Log Dispute"
 }
 export interface AppealTemplate {
   id: string;
@@ -121,4 +123,27 @@ export interface NPIRecord {
   name: string;
   specialty: string;
   status: string;
+}
+export interface WorkLog {
+  id: string;
+  date: string;
+  hours: number;
+  activity: string;
+  isExempt: boolean;
+  exemptionReason?: string;
+}
+export interface PBMRecord {
+  id: string;
+  ndc: string;
+  drugName: string;
+  copayAmount: number;
+  cashPrice: number;
+  rebateAmount: number;
+}
+export interface PIDComplaint {
+  id: string;
+  violationType: AppealIssue;
+  evidenceVaultIds: string[];
+  status: 'Draft' | 'Submitted' | 'Under Review';
+  submissionDate: string;
 }

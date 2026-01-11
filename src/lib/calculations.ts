@@ -19,41 +19,44 @@ export function calculateFPLStatus(income: number, householdSize: number, debtAm
     reason: isBelow400FPL ? 'Income below 400% FPL' : isHighDebtBurden ? 'Medical debt exceeds 5% of income' : null
   };
 }
-export function calculateConsensusFMV(submissions: number[], threshold: number = 5) {
-  if (submissions.length < threshold) return null;
-  // Trim outliers (top/bottom 10% for robust consensus)
-  const sorted = [...submissions].sort((a, b) => a - b);
-  const trimCount = Math.floor(sorted.length * 0.1);
-  const trimmed = sorted.slice(trimCount, sorted.length - trimCount);
-  const sum = trimmed.reduce((a, b) => a + b, 0);
-  const median = trimmed[Math.floor(trimmed.length / 2)];
+export function calculatePBMSavings(copay: number, cashPrice: number, drugTier: number = 3) {
+  // Act 77 requires rebate pass-through for specialty tiers. 
+  // Mock rebate: 15% for Tier 4, 5% for Tier 3
+  const rebateFactor = drugTier >= 4 ? 0.15 : drugTier === 3 ? 0.05 : 0;
+  const estimatedRebate = cashPrice * rebateFactor;
+  const netCashPrice = cashPrice - estimatedRebate;
+  const potentialSavings = copay - netCashPrice;
   return {
-    trimmedMean: sum / trimmed.length,
-    median,
-    confidence: submissions.length >= 10 ? 'High' : 'Medium'
+    isOvercharged: copay > cashPrice || potentialSavings > 0,
+    estimatedRebate,
+    potentialSavings: Math.max(0, potentialSavings),
+    netCashPrice
   };
 }
-export function calculateSB371Audit(principal: number, currentRate: number, months: number) {
-  const legalRate = 0.03;
-  const interestCharged = principal * (currentRate / 100) * (months / 12);
-  const legalInterest = principal * legalRate * (months / 12);
-  const overcharge = Math.max(0, interestCharged - legalInterest);
+export function checkMedicaidCompliance(logs: { hours: number; isExempt: boolean }[]) {
+  const totalHours = logs.reduce((acc, curr) => acc + (curr.isExempt ? 80 : curr.hours), 0);
+  const isCompliant = totalHours >= 80;
   return {
-    overcharge,
-    isViolation: currentRate > 3.1,
-    annualOvercharge: overcharge / (months / 12 || 1)
+    totalHours,
+    isCompliant,
+    remaining: Math.max(0, 80 - totalHours)
   };
 }
-export function checkSB752Eligibility(isNonProfit: boolean, debtAmount: number) {
-  // SB 752 blocks aggressive collections for non-profits if financial assistance applies
+export function getHB79DischargeStatus(income: number, debt: number, size: number) {
+  const status = calculateFPLStatus(income, size, debt);
+  if (status.isEligible) {
+    return {
+      status: 'Presumptive Eligible',
+      cite: 'HB 79 Section 504',
+      protection: 'Collection Stay Mandated'
+    };
+  }
   return {
-    isProtected: isNonProfit && debtAmount > 0,
-    violationType: isNonProfit ? 'SB 752 Non-Profit Debt Block' : 'None'
+    status: 'Standard Review',
+    cite: 'PA Act 10',
+    protection: 'Hardship Review Only'
   };
 }
-/**
- * Calculates 2026 premium impact and affordability threshold (8.5%).
- */
 export function calculatePremiumShock(income: number, p25: number, p26: number) {
   const annualPremium = p26 * 12;
   const incomePercent = income > 0 ? (annualPremium / income) * 100 : 0;

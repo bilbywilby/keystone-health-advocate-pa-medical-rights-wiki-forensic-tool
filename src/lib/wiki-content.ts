@@ -16,8 +16,6 @@ The most powerful tool for patients is the **Specialty Match Mandate**. Under §
 2. Holds an active, unrestricted license.
 ### Why This Matters
 If an Orthopedic Surgeon orders an MRI for a complex spinal issue, a General Practitioner at the insurance company cannot legally deny it. They must have an Orthopedic specialist review the file.
-### How to use the Tool
-Use our [Appeal Generator](/appeal-generator?type=PRIOR_AUTH) to cite §991.2116 if your denial letter shows a mismatch in reviewer specialty.
     `
   },
   {
@@ -31,36 +29,30 @@ Use our [Appeal Generator](/appeal-generator?type=PRIOR_AUTH) to cite §991.2116
 # HB 79: Mandatory Screening
 Pennsylvania House Bill 79 (2025) and SB 752 (2026) fundamentally changed medical debt collection.
 ## Key Provisions
-1. **Mandatory Screening**: Hospitals cannot send a bill to collections without first screening the patient for financial assistance eligibility if their income is below 400% FPL ($124,800 for a family of 4).
+1. **Mandatory Screening**: Hospitals cannot send a bill to collections without first screening the patient for financial assistance eligibility if their income is below 400% FPL.
 2. **The 5% Rule**: If a medical bill exceeds 5% of a household's annual income, the hospital must offer a low-interest payment plan or financial aid.
-3. **Stay of Collections**: During the screening process, all collection activities must stop.
-### Non-Profit Enforcement
-SB 752 specifically targets non-profit facilities (like UPMC and AHN). If they violate these screening mandates, their ability to place liens on property is revoked for that debt.
-Use the [Financial Defense Tool](/tools) to check your eligibility.
     `
   },
   {
     id: "wa3",
-    slug: "act-6-lyme-coverage",
-    title: "Act 6: Chronic Lyme Disease Mandate",
+    slug: "act-139-naloxone",
+    title: "Act 139: Naloxone Access Law",
     category: WikiCategory.CLINICAL,
-    lastUpdated: "2026-01-20",
-    excerpt: "Mandatory coverage for long-term antibiotic therapy for Lyme disease in PA.",
+    lastUpdated: "2026-04-01",
+    excerpt: "PA Standing Order allows anyone to get Naloxone at a pharmacy without a personal prescription.",
     content: `
-# Act 6: Lyme Disease Coverage
-Pennsylvania has one of the highest rates of Lyme disease in the country. Act 6 mandates comprehensive coverage for its treatment.
-## Legal Requirements
-Health policies in PA must provide coverage for:
-- Diagnostic testing.
-- Long-term antibiotic therapy (IV or oral) for chronic Lyme disease when ordered by a licensed physician.
-## Disputes
-Insurers often deny long-term antibiotics as "experimental." Act 6 overrides this by stating that if a physician determines it is medically necessary, the insurer MUST cover it.
-Cite **PA Act 6 of 2020** in your [Appeal Letter](/appeal-generator?type=LYME_COVERAGE).
+# Act 139: Overdose Prevention Access
+Pennsylvania Act 139 (David's Law) provides legal protections for those seeking help during an overdose and ensures wide access to Naloxone.
+## The Standing Order
+In PA, the Physician General has issued a **Statewide Standing Order**. This acts as a prescription for every resident.
+- You can walk into any PA pharmacy and request Naloxone.
+- Most insurance plans, including Medicaid, provide it at **$0 copay**.
+- Pharmacists cannot refuse access if they have the supply in stock.
     `
   },
   {
     id: "wa4",
-    slug: "hb-1754-biomarker-testing",
+    slug: "hb-1754-biomarker-update",
     title: "HB 1754: Biomarker Access Law",
     category: WikiCategory.CLINICAL,
     lastUpdated: "2026-03-01",
@@ -72,8 +64,6 @@ Effective 2025, Pennsylvania House Bill 1754 requires insurers to cover biomarke
 - Genetic testing for cancer treatment selection.
 - Biomarker tests for inflammatory and rare diseases.
 - Tests required for FDA-approved "companion diagnostics."
-## Denials
-If your biomarker test was denied as "not medically necessary," the insurer may be violating HB 1754. Use the [Appeal Generator](/appeal-generator?type=BIOMARKER_TESTING) to dispute.
     `
   }
 ];

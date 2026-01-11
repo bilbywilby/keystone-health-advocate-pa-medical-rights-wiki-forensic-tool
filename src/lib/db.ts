@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie';
-import { DisputeTask } from '@shared/types';
+import { DisputeTask, WorkLog, PBMRecord } from '@shared/types';
 export interface VaultItem {
   id: string;
   type: 'EOB' | 'Letter' | 'Calculation' | 'Record';
@@ -25,13 +25,17 @@ export class ValleyDB extends Dexie {
   billingRecords!: Table<BillingRecord>;
   tasks!: Table<DisputeTask>;
   appSettings!: Table<AppSetting>;
+  workLogs!: Table<WorkLog>;
+  pbmAudits!: Table<PBMRecord>;
   constructor() {
     super('ValleyDB');
-    this.version(2).stores({
+    this.version(3).stores({
       vault: 'id, type, date, title',
       billingRecords: 'id, provider, date, status',
       tasks: 'id, status, dueDate, linkedVaultId',
-      appSettings: 'key'
+      appSettings: 'key',
+      workLogs: 'id, date, isExempt',
+      pbmAudits: 'id, ndc, drugName'
     });
   }
 }
@@ -62,4 +66,13 @@ export async function upsertTask(task: DisputeTask) {
 }
 export async function deleteTask(id: string) {
   return db.tasks.delete(id);
+}
+export async function getWorkLogs() {
+  return db.workLogs.orderBy('date').toArray();
+}
+export async function addWorkLog(log: WorkLog) {
+  return db.workLogs.put(log);
+}
+export async function getPbmAudits() {
+  return db.pbmAudits.toArray();
 }
