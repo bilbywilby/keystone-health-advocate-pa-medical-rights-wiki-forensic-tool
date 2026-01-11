@@ -86,7 +86,8 @@ function runSetupCommands() {
     "bun add framer-motion",
     "bun add date-fns",
     "bun add react-router-dom",
-    "bun add lucide-react framer-motion date-fns dexie react-router-dom"
+    "bun add lucide-react framer-motion date-fns dexie react-router-dom",
+    "bun add @radix-ui/react-tooltip"
 ];
     
     if (commands.length === 0) {
