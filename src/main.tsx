@@ -13,14 +13,21 @@ import { RouteErrorBoundary } from '@/components/RouteErrorBoundary';
 import '@/index.css'
 import { HomePage } from '@/pages/HomePage'
 import { WikiPage } from '@/pages/WikiPage'
+import { ToolsPage } from '@/pages/ToolsPage'
+import { VaultPage } from '@/pages/VaultPage'
 const queryClient = new QueryClient();
-const Placeholder = ({ title }: { title: string }) => (
-  <div className="p-8 text-center space-y-4">
-    <h1 className="text-2xl font-bold">{title}</h1>
-    <p className="text-muted-foreground">This tool is coming soon in the next phase.</p>
-    <a href="/" className="text-amber-600 hover:underline">Back Home</a>
-  </div>
+const ComingSoon = ({ title }: { title: string }) => (
+  <AppLayout>
+    <div className="p-20 text-center space-y-4">
+      <h1 className="text-2xl font-bold">{title}</h1>
+      <p className="text-muted-foreground">This tool is coming in Phase 3.</p>
+      <a href="/" className="text-amber-600 hover:underline">Back Home</a>
+    </div>
+  </AppLayout>
 );
+// We keep Placeholder as a separate component exported from another file if needed, 
+// but here we use it inline to satisfy the router for yet-to-be-built pages.
+import { AppLayout } from '@/components/layout/AppLayout';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -39,17 +46,22 @@ const router = createBrowserRouter([
   },
   {
     path: "/tools",
-    element: <Placeholder title="Forensic Toolkit" />,
-    errorElement: <RouteErrorBoundary />,
-  },
-  {
-    path: "/directory",
-    element: <Placeholder title="Provider Directory" />,
+    element: <ToolsPage />,
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: "/vault",
-    element: <Placeholder title="Privacy Vault" />,
+    element: <VaultPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/directory",
+    element: <ComingSoon title="Provider Directory" />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/emergency",
+    element: <ComingSoon title="Emergency Rights" />,
     errorElement: <RouteErrorBoundary />,
   },
 ]);
