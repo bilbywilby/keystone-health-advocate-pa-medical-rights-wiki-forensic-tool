@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, ArrowRight, Gavel, Calculator, FileText, Landmark, Globe, Zap, Heart, TrendingUp, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Gavel, Calculator, Globe, Zap, TrendingUp, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { WikiSearch } from '@/components/WikiSearch';
 import { Link } from 'react-router-dom';
@@ -9,10 +9,15 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { api } from '@/lib/api-client';
 import { CommunityStats } from '@shared/types';
 import { motion } from 'framer-motion';
+import { Skeleton } from '@/components/ui/skeleton';
 export function HomePage() {
   const [stats, setStats] = useState<CommunityStats | null>(null);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
-    api<CommunityStats>('/api/benchmarks/stats').then(setStats).catch(() => {});
+    api<CommunityStats>('/api/benchmarks/stats')
+      .then(setStats)
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
   return (
     <AppLayout>
@@ -30,7 +35,7 @@ export function HomePage() {
             </div>
           </div>
           <Button asChild size="sm" className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black">
-            <Link to="/wiki/sb-371-debt-shield">Review My Rights</Link>
+            <Link to="/wiki/act-146-prior-auth">Review My Rights</Link>
           </Button>
         </motion.div>
         {/* Hero Section */}
@@ -66,27 +71,37 @@ export function HomePage() {
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-             {stats?.legislativePulse.map((pulse, i) => (
-               <Card key={i} className="bg-slate-50/50 dark:bg-slate-900/20 border-slate-200 hover:border-amber-500 transition-colors group">
-                  <CardContent className="pt-6 space-y-4">
-                    <Badge className="bg-emerald-100 text-emerald-700 border-none px-2 py-0 text-[9px] font-black">{pulse.status}</Badge>
-                    <div>
-                      <div className="font-black text-sm text-slate-800 dark:text-slate-200 uppercase">{pulse.label}</div>
-                      <div className="text-[10px] text-muted-foreground leading-tight mt-1 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors">{pulse.impact}</div>
-                    </div>
-                  </CardContent>
-               </Card>
-             ))}
-             <Card className="bg-slate-900 text-white overflow-hidden relative">
-                <div className="absolute top-0 right-0 p-2 opacity-10"><TrendingUp className="w-20 h-20" /></div>
-                <CardContent className="pt-6 flex flex-col justify-between h-full relative z-10">
-                  <div>
-                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Savings Identified</div>
-                    <div className="text-3xl font-black text-amber-500 tracking-tighter">${(stats?.totalSavingsIdentified || 0).toLocaleString()}</div>
-                  </div>
-                  <div className="text-[9px] font-bold text-slate-500 uppercase mt-4">Threshold: Consensus Reached</div>
-                </CardContent>
-             </Card>
+             {loading ? (
+               Array(4).fill(0).map((_, i) => (
+                 <Skeleton key={i} className="h-32 w-full rounded-2xl" />
+               ))
+             ) : (
+               <>
+                 {stats?.legislativePulse.map((pulse, i) => (
+                   <Card key={i} className="bg-slate-50/50 dark:bg-slate-900/20 border-slate-200 hover:border-amber-500 transition-colors group">
+                      <CardContent className="pt-6 space-y-4">
+                        <Badge className="bg-emerald-100 text-emerald-700 border-none px-2 py-0 text-[9px] font-black">{pulse.status}</Badge>
+                        <div>
+                          <div className="font-black text-sm text-slate-800 dark:text-slate-200 uppercase">{pulse.label}</div>
+                          <div className="text-[10px] text-muted-foreground leading-tight mt-1 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors">{pulse.impact}</div>
+                        </div>
+                      </CardContent>
+                   </Card>
+                 ))}
+                 <Card className="bg-slate-900 text-white overflow-hidden relative min-h-[140px]">
+                    <div className="absolute top-0 right-0 p-2 opacity-10"><TrendingUp className="w-20 h-20" /></div>
+                    <CardContent className="pt-6 flex flex-col justify-between h-full relative z-10">
+                      <div>
+                        <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Savings Identified</div>
+                        <div className="text-3xl font-black text-amber-500 tracking-tighter">
+                          ${stats ? stats.totalSavingsIdentified.toLocaleString() : '---'}
+                        </div>
+                      </div>
+                      <div className="text-[9px] font-bold text-slate-500 uppercase mt-4">Threshold: Consensus Reached</div>
+                    </CardContent>
+                 </Card>
+               </>
+             )}
           </div>
         </section>
         {/* Feature Grid */}

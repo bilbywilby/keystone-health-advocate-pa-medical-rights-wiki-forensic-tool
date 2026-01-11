@@ -41,7 +41,7 @@ export function calculateSB371Audit(principal: number, currentRate: number, mont
   return {
     overcharge,
     isViolation: currentRate > 3.1,
-    annualOvercharge: overcharge / (months / 12)
+    annualOvercharge: overcharge / (months / 12 || 1)
   };
 }
 export function checkSB752Eligibility(isNonProfit: boolean, debtAmount: number) {
@@ -49,5 +49,19 @@ export function checkSB752Eligibility(isNonProfit: boolean, debtAmount: number) 
   return {
     isProtected: isNonProfit && debtAmount > 0,
     violationType: isNonProfit ? 'SB 752 Non-Profit Debt Block' : 'None'
+  };
+}
+/**
+ * Calculates 2026 premium impact and affordability threshold (8.5%).
+ */
+export function calculatePremiumShock(income: number, p25: number, p26: number) {
+  const annualPremium = p26 * 12;
+  const incomePercent = income > 0 ? (annualPremium / income) * 100 : 0;
+  const increase = p26 - p25;
+  return {
+    incomePercent,
+    isUnaffordable: incomePercent > 8.5,
+    increase,
+    monthlyIncomeLimit: (income * 0.085) / 12
   };
 }

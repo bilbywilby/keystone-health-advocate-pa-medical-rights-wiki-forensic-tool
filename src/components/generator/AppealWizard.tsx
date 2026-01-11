@@ -6,9 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { AppealIssue } from '@shared/types';
-import { ChevronRight, ChevronLeft, Save, FileText, Stethoscope, AlertCircle, ShieldAlert, Printer } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Save, FileText, AlertCircle, ShieldAlert, Printer } from 'lucide-react';
 import { addToVault } from '@/lib/db';
 import { toast } from 'sonner';
 const STEPS = ['Select Issue', 'Bill Details', 'Statutory Review', 'Legal Preview'];
@@ -41,24 +40,29 @@ export function AppealWizard() {
   const generateLetter = () => {
     const today = new Date().toLocaleDateString();
     let cite = "PA Act 146";
+    let header = "FORMAL NOTICE OF DISPUTE";
     if (formData.issue === AppealIssue.BALANCE_BILLING) cite = "Federal No Surprises Act";
-    if (formData.issue === AppealIssue.INTEREST_RATE) cite = "PA SB 371 / Act 6";
+    if (formData.issue === AppealIssue.INTEREST_RATE) cite = "PA SB 371 (Louisa Carman Act)";
     if (formData.issue === AppealIssue.FINANCIAL_ASSISTANCE) cite = "PA HB 79 / SB 752";
     if (formData.issue === AppealIssue.LYME_COVERAGE) cite = "PA Act 6 of 2020";
-    const specialtyViolation = isMismatch ? `\n\nLEGAL NOTICE: Under PA Insurance Company Law Section 991.2116, this denial is procedurally deficient. A physician in ${formData.denyingDoctorSpecialty} may not deny services ordered by a specialist in ${formData.orderingDoctorSpecialty}. I demand immediate reversal or external review.` : '';
+    const specialtyViolation = (isMismatch && formData.issue === AppealIssue.PRIOR_AUTH)
+      ? `\n\nLEGAL NOTICE: Under PA Insurance Company Law Section 991.2116, this denial is procedurally deficient. A physician specializing in ${formData.denyingDoctorSpecialty} may not legally deny services ordered by a specialist in ${formData.orderingDoctorSpecialty}. I demand an immediate reversal or a formal review by a qualified specialty-match physician.` 
+      : '';
+    const violationHeader = isMismatch ? "URGENT STATUTORY VIOLATION NOTICE\n" : "";
     return `
 Date: ${today}
-To: Consumer Grievance Department, ${formData.providerName}
+To: Consumer Grievance Department, ${formData.providerName || '[Provider Name]'}
 Reference: Account #${formData.accountNumber || 'PENDING'}
-FORMAL NOTICE OF DISPUTE PURSUANT TO ${cite.toUpperCase()}
+${violationHeader}${header} PURSUANT TO ${cite.toUpperCase()}
 Dear Grievance Coordinator,
-I am writing to formally dispute the determination dated ${formData.billDate || '[DATE]'}. Under Pennsylvania law, I am invoking my consumer protection rights regarding ${formData.issue}.
+I am writing to formally dispute the determination dated ${formData.billDate || '[DATE]'}. Under Pennsylvania law, I am invoking my specific consumer protection rights regarding ${formData.issue}.
 DISPUTE BASIS:
 ${formData.details || 'The provider has failed to demonstrate compliance with state transparency and clinical review standards.'}${specialtyViolation}
-Under the Fair Credit Extension Uniformity Act (FCEUA), this debt is formally disputed. Any reporting to credit bureaus during this 30-day resolution window is a violation of state law.
-I request a written response confirming the receipt of this dispute and the initiation of a formal peer-to-peer review by a licensed practitioner matching my ordering physician's specialty.
+Under the PA Fair Credit Extension Uniformity Act (FCEUA), this debt is now formally disputed. Pursuant to state law, any reporting to credit bureaus during this 30-day resolution window, or failing to mark the item as disputed, constitutes a violation.
+I request a written response within 30 days confirming the receipt of this dispute and the initiation of a formal clinical/financial review.
 Sincerely,
-${formData.patientName || '[Patient Name Signature]'}
+[Signature]
+${formData.patientName || '[Patient Name]'}
     `.trim();
   };
   const handleSave = async () => {
@@ -110,7 +114,7 @@ ${formData.patientName || '[Patient Name Signature]'}
                   <div className="space-y-2"><Label>Date of Denial</Label><Input type="date" value={formData.billDate} onChange={e => setFormData({ ...formData, billDate: e.target.value })} /></div>
                   <div className="space-y-2"><Label>Claim/Account Number</Label><Input value={formData.accountNumber} onChange={e => setFormData({ ...formData, accountNumber: e.target.value })} placeholder="Required for identification" /></div>
                 </div>
-                <div className="space-y-2"><Label>Factual Details of Denial</Label><Textarea className="min-h-[100px]" value={formData.details} onChange={e => setFormData({ ...formData, details: e.target.value })} placeholder="Explain why the charge or denial is incorrect..." /></div>
+                <div className="space-y-2"><Label>Factual Details of Dispute</Label><Textarea className="min-h-[100px]" value={formData.details} onChange={e => setFormData({ ...formData, details: e.target.value })} placeholder="Explain why the charge or denial is incorrect based on your records..." /></div>
               </CardContent>
             )}
             {step === 2 && (
@@ -120,7 +124,7 @@ ${formData.patientName || '[Patient Name Signature]'}
                   <div>
                     <h4 className="font-bold text-sm text-amber-900">Act 146 (§991.2116) Enforcement</h4>
                     <p className="text-xs text-amber-700 leading-relaxed mt-1">
-                      Denials are often invalid if the reviewing physician's specialty does not match the ordering doctor. Ensure you enter the exact specialties from your denial letter.
+                      Denials are often invalid if the reviewing physician's specialty does not match the ordering doctor. Ensure you enter the exact specialties listed on your denial paperwork.
                     </p>
                   </div>
                 </div>
