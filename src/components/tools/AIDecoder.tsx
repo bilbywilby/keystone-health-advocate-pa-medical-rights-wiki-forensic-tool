@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Sparkles, ShieldAlert, BookOpen, CheckCircle2, Search, ArrowRight } from 'lucide-react';
 import { decodeJargon } from '@/lib/calculations';
 import { toast } from 'sonner';
-import { cn } from "@/lib/utils";
 export function AIDecoder() {
   const [input, setInput] = useState('');
   const [analysis, setAnalysis] = useState<{ term: string; explanation: string; violation?: string }[] | null>(null);
@@ -37,7 +36,7 @@ export function AIDecoder() {
           <CardDescription>Paste your denial letter or EOB description. We decode it locally without sending it to the cloud.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Textarea
+          <Textarea 
             placeholder="e.g. 'Requested MRI lumbar spine denied as not medically necessary. Review by medical director (General Practice) found standard conservative therapy was not exhausted...'"
             className="min-h-[150px] font-sans text-sm leading-relaxed"
             value={input}

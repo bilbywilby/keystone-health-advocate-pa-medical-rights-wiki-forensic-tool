@@ -6,14 +6,12 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useAccessibility } from '@/hooks/use-accessibility';
 export function AccessibilityToggle() {
-  const { 
-    highContrast, 
-    reducedMotion, 
-    dyslexicFriendly, 
-    toggleHighContrast, 
-    toggleReducedMotion, 
-    toggleDyslexicFriendly 
-  } = useAccessibility();
+  const highContrast = useAccessibility(s => s.highContrast);
+  const reducedMotion = useAccessibility(s => s.reducedMotion);
+  const dyslexicFriendly = useAccessibility(s => s.dyslexicFriendly);
+  const toggleHighContrast = useAccessibility(s => s.toggleHighContrast);
+  const toggleReducedMotion = useAccessibility(s => s.toggleReducedMotion);
+  const toggleDyslexicFriendly = useAccessibility(s => s.toggleDyslexicFriendly);
   return (
     <Popover>
       <PopoverTrigger asChild>
