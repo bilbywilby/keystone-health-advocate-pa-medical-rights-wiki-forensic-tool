@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { addToVault } from '@/lib/db';
 import { toast } from 'sonner';
-import { AlertCircle, CheckCircle2, Calculator } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Calculator, ShieldCheck } from 'lucide-react';
 export function InterestCalculator() {
   const [originalDebt, setOriginalDebt] = useState<string>('');
   const [currentBalance, setCurrentBalance] = useState<string>('');
@@ -24,14 +24,14 @@ export function InterestCalculator() {
       setResult({ rate: 0, overcharge: 0, isIllegal: false });
       return;
     }
-    // Simple annual interest approximation: (I / P) / (T/12)
+    // SB 371 (Louisa Carman Act) standard: 3% APR
     const annualRate = (interestAmount / principal) / (months / 12);
-    const maxLegalInterest = principal * (0.06 * (months / 12));
+    const maxLegalInterest = principal * (0.03 * (months / 12));
     const overcharge = Math.max(0, interestAmount - maxLegalInterest);
     setResult({
       rate: annualRate * 100,
       overcharge,
-      isIllegal: annualRate > 0.061 // Buffer for minor rounding
+      isIllegal: annualRate > 0.031 // Flagging strictly at 3.1% to allow for tiny float variances
     });
   };
   const saveToVault = async () => {
@@ -39,18 +39,22 @@ export function InterestCalculator() {
     await addToVault({
       type: 'Calculation',
       date: new Date().toISOString(),
-      title: 'Interest Rate Audit',
-      content: `Principal: $${originalDebt}\nCurrent: $${currentBalance}\nEstimated Rate: ${result.rate.toFixed(2)}%\nOvercharge: $${result.overcharge.toFixed(2)}`,
+      title: 'Interest Rate Audit (SB 371)',
+      content: `Principal: $${originalDebt}\nCurrent: $${currentBalance}\nEstimated Rate: ${result.rate.toFixed(2)}%\nLegal Limit: 3.0% (SB 371)\nEstimated Overcharge: $${result.overcharge.toFixed(2)}`,
       metadata: { originalDebt, currentBalance, result }
     });
     toast.success('Saved to Privacy Vault');
   };
   return (
     <div className="grid md:grid-cols-2 gap-8">
-      <Card>
+      <Card className="border-slate-200">
         <CardHeader>
-          <CardTitle>Interest Audit (Act 6)</CardTitle>
-          <CardDescription>Detect predatory interest rates on medical collections.</CardDescription>
+          <div className="flex items-center gap-2 text-amber-600 mb-1">
+            <ShieldCheck className="w-4 h-4" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em]">2026 Legal Standard</span>
+          </div>
+          <CardTitle>Interest Audit (SB 371)</CardTitle>
+          <CardDescription>Detect illegal interest rates above the 3% cap set by the Louisa Carman Act.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -59,13 +63,13 @@ export function InterestCalculator() {
           </div>
           <div className="space-y-2">
             <Label>Current Balance ($)</Label>
-            <Input type="number" value={currentBalance} onChange={e => setCurrentBalance(e.target.value)} placeholder="e.g. 1200" />
+            <Input type="number" value={currentBalance} onChange={e => setCurrentBalance(e.target.value)} placeholder="e.g. 1045" />
           </div>
           <div className="space-y-2">
             <Label>Months Since First Bill</Label>
             <Input type="number" value={monthsElapsed} onChange={e => setMonthsElapsed(e.target.value)} placeholder="e.g. 12" />
           </div>
-          <Button onClick={calculate} className="w-full">Calculate Audit</Button>
+          <Button onClick={calculate} className="w-full bg-slate-900 text-white">Calculate Audit</Button>
         </CardContent>
       </Card>
       {result && (
@@ -82,21 +86,21 @@ export function InterestCalculator() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="p-4 bg-white rounded-lg border shadow-sm">
-              <div className="text-sm text-muted-foreground">Estimated Overcharge</div>
-              <div className={`text-2xl font-bold ${result.overcharge > 0 ? 'text-red-600' : ''}`}>
+            <div className="p-4 bg-white rounded-lg border shadow-sm dark:bg-slate-950">
+              <div className="text-sm text-muted-foreground">Estimated Overcharge (vs 3% limit)</div>
+              <div className={`text-2xl font-bold ${result.overcharge > 0 ? 'text-red-600' : 'text-slate-900 dark:text-white'}`}>
                 ${result.overcharge.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </div>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {result.isIllegal 
-                ? "This interest rate appears to exceed the Pennsylvania Act 6 cap of 6% per annum. You may have grounds to dispute the entire interest portion of this bill."
-                : "This interest rate is within the standard 6% cap permitted by PA Act 6 for non-mortgage consumer debts."}
+            <p className="text-sm text-muted-foreground leading-relaxed italic">
+              {result.isIllegal
+                ? "This rate exceeds the 3% cap mandated by PA SB 371 (The Louisa Carman Act). Any interest charged above 3% is likely illegal and subject to triple-damage recovery."
+                : "This interest rate is within the legal 3% ceiling established for PA medical debt in 2026."}
             </p>
             <div className="flex gap-2">
               <Button onClick={saveToVault} variant="outline" className="flex-1">Save to Vault</Button>
               {result.isIllegal && (
-                <Button className="flex-1 bg-red-600 hover:bg-red-700">Generate Dispute</Button>
+                <Button className="flex-1 bg-red-600 hover:bg-red-700 text-white">Generate Dispute</Button>
               )}
             </div>
           </CardContent>

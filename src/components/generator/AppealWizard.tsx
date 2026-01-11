@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { AppealIssue } from '@shared/types';
 import { ChevronRight, ChevronLeft, Save, FileText, Stethoscope, AlertCircle, ShieldAlert } from 'lucide-react';
 import { addToVault } from '@/lib/db';
 import { toast } from 'sonner';
 const STEPS = ['Select Issue', 'Bill Details', 'Specialty Match', 'Review Letter'];
 export function AppealWizard() {
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState({
     issue: AppealIssue.PRIOR_AUTH,
@@ -23,11 +26,18 @@ export function AppealWizard() {
     denyingDoctorSpecialty: '',
     orderingDoctorSpecialty: ''
   });
+  useEffect(() => {
+    const typeParam = searchParams.get('type');
+    if (typeParam && Object.keys(AppealIssue).includes(typeParam)) {
+      setFormData(prev => ({ ...prev, issue: AppealIssue[typeParam as keyof typeof AppealIssue] }));
+      setStep(1); // Auto-advance to details if type is pre-selected
+    }
+  }, [searchParams]);
   const next = () => setStep(s => Math.min(s + 1, STEPS.length - 1));
   const prev = () => setStep(s => Math.max(s - 1, 0));
-  const isMismatch = formData.denyingDoctorSpecialty && 
-                     formData.orderingDoctorSpecialty && 
-                     formData.denyingDoctorSpecialty.toLowerCase() !== formData.orderingDoctorSpecialty.toLowerCase();
+  const isMismatch = formData.denyingDoctorSpecialty &&
+                     formData.orderingDoctorSpecialty &&
+                     formData.denyingDoctorSpecialty.toLowerCase().trim() !== formData.orderingDoctorSpecialty.toLowerCase().trim();
   const generateLetter = () => {
     const today = new Date().toLocaleDateString();
     let statute = "PA Act 146";
@@ -79,7 +89,7 @@ ${formData.patientName || '[YOUR NAME]'}
             {step === 0 && (
               <CardContent className="pt-6 grid gap-3">
                 {Object.values(AppealIssue).map((issue) => (
-                  <button key={issue} onClick={() => setFormData({ ...formData, issue })} className={`text-left p-4 rounded-lg border-2 transition-all ${formData.issue === issue ? 'border-amber-500 bg-amber-50/30' : 'border-slate-100 hover:border-slate-300'}`}>
+                  <button key={issue} onClick={() => { setFormData({ ...formData, issue }); next(); }} className={`text-left p-4 rounded-lg border-2 transition-all ${formData.issue === issue ? 'border-amber-500 bg-amber-50/30' : 'border-slate-100 hover:border-slate-300'}`}>
                     <div className="font-semibold text-sm">{issue}</div>
                   </button>
                 ))}
@@ -122,9 +132,11 @@ ${formData.patientName || '[YOUR NAME]'}
               <CardContent className="pt-6 space-y-4">
                  <div className="flex justify-between items-center mb-2">
                     <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Legal Strength</span>
-                    <Badge className={isMismatch ? 'bg-emerald-500' : 'bg-amber-500'}>{isMismatch ? 'High: Procedural Violation' : 'Medium: Standards Audit'}</Badge>
+                    <Badge className={isMismatch ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}>
+                      {isMismatch ? 'High: Procedural Violation' : 'Medium: Standards Audit'}
+                    </Badge>
                  </div>
-                 <div className="bg-slate-50 border rounded-lg p-6 font-mono text-[10px] whitespace-pre-wrap leading-relaxed max-h-[300px] overflow-y-auto">
+                 <div className="bg-slate-50 border rounded-lg p-6 font-mono text-[10px] whitespace-pre-wrap leading-relaxed max-h-[300px] overflow-y-auto dark:bg-slate-900">
                     {generateLetter()}
                  </div>
               </CardContent>
@@ -132,9 +144,9 @@ ${formData.patientName || '[YOUR NAME]'}
             <CardFooter className="flex justify-between border-t p-6">
               <Button variant="ghost" onClick={prev} disabled={step === 0}>Back</Button>
               {step === STEPS.length - 1 ? (
-                <Button onClick={handleSave} className="bg-emerald-600">Save to Vault</Button>
+                <Button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700 text-white">Save to Vault</Button>
               ) : (
-                <Button onClick={next} className="bg-amber-500">Next Step</Button>
+                <Button onClick={next} className="bg-amber-500 hover:bg-amber-600 text-white">Next Step</Button>
               )}
             </CardFooter>
           </Card>
