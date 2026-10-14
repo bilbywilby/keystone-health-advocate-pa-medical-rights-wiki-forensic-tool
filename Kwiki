@@ -1,0 +1,7 @@
+W="${TMPDIR:-$PREFIX/tmp}/kwiki"
+
+# 1️⃣ Search relevant terms
+grep -rInEi "\bIDR\b|independent dispute|dispute resolution|track a" "$W" --exclude-dir=.git
+
+# 2️⃣ Show last wiki commit date
+git -C "$W" log -1 --format='last wiki commit: %ad' --date=short
