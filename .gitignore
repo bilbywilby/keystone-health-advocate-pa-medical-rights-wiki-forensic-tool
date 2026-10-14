@@ -1,3 +1,19 @@
+# Byte-artifacts and Git internals
+main
+FETCH_HEAD
+.git/
 
-# Bootstrap marker
-.bootstrap-complete
+# Dependencies and caches
+node_modules/
+__pycache__/
+*.py[cod]
+.env
+
+# Build artifacts and local-only files
+final_package/
+*.tar.gz
+*.zip
+data/provenance/
+animated-umbrella.wiki/
+ctx_report_*.txt
+tests/_bad_row.tmp

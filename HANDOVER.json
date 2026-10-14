@@ -1,0 +1,98 @@
+{
+  "handover_version": "3.1",
+  "generated_at": "2026-10-10",
+  "repository": {
+    "name": "animated-umbrella",
+    "remote": "https://github.com/bilbywilby/animated-umbrella.git",
+    "visibility": "PUBLIC",
+    "wiki_branch": "master",
+    "wiki_remote": "https://github.com/bilbywilby/animated-umbrella.wiki.git"
+  },
+  "purpose": "Verified-first public audit of Pennsylvania ACA PY2027 rates and nine rating areas.",
+  "layout": {
+    "one_pagers": "9 PDFs",
+    "audits": "9 Markdown audits",
+    "wiki": "12 pages",
+    "data": "validated dataset + derived metrics",
+    "src": "build and verification code",
+    "tests": "unittest",
+    "scripts": "release_check, install_wiki, quarantine_strays, fix_json_fence",
+    "site": "offline county lookup page",
+    "ci": ".github/workflows/verify.yml (untested on GitHub)",
+    "drift": "src/refresh_check.py (untested against live PID page)",
+    "github_workflow": "verify.yml (tests, stale-output check, numbers gate, weekly drift check)"
+  },
+  "verified_facts": {
+    "pid_release_date": "2026-09-18",
+    "individual_avg_approved_pct": 15.97,
+    "small_group_avg_approved_pct": 10.28,
+    "individual_avg_requested_pct": 17.14,
+    "small_group_avg_requested_pct": 11.49,
+    "pid_denied_increases_usd_millions": 94.7,
+    "open_enrollment_2027": "2026-11-01 to 2027-01-15; enroll by 2026-12-15 for 2027-01-01 start",
+    "source": "PID press release and rate-filing pages, read 2026-10-09/10"
+  },
+  "validation": [
+    "county map is a 67-county, 9-area partition",
+    "statewide weights reproduce PID averages within 0.05 pt",
+    "area filer lists match Sept 8 reports (9/9) and PID-stated rating areas (12/12)"
+  ],
+  "tested_on": "build sandbox (Linux, Python 3.12). Not yet run on Termux (Python 3.14); run scripts/release_check.sh there first. Retry and comparison logic tested against a local fake HTTP server (17 + 10 tests).",
+  "do_not_publish_until_fixed": [
+    "pa_aca_briefing_py2027_final.html",
+    "Executive Briefing.md",
+    "Pennsylvania Health Insurance Market & 2027 Rate Analysis Matrix.md",
+    "data/carrier_rates.csv (share26 column)"
+  ],
+  "unverified_claims": [
+    "Ambetter removed Bronze tier for 2027",
+    "$600M reinsurance deficit",
+    "417,158 effectuated enrollment and 84.0% retention",
+    "~203,000 gross terminations",
+    "CMS risk-transfer dollar figures"
+  ],
+  "quarantined_sources": [
+    "Cross-Sectional Metadata Analysis (RTF/PDF)",
+    "stray pasted AI analyses"
+  ],
+  "known_issues": [
+    {
+      "id": "REPO-001",
+      "status": "open",
+      "note": "Old repo has stray tracked files (Twi, cms_dump.txt, empty tarball) and three placeholder-message commits already public."
+    },
+    {
+      "id": "JSON-001",
+      "status": "open",
+      "note": "Old HANDOVER.json was not valid JSON; replaced by this file. Use scripts/fix_json_fence.py on any other fenced JSON."
+    },
+    {
+      "id": "PROV-001",
+      "status": "open",
+      "note": "Old provenance log may hold a test entry marked VERIFIED against example.com; run src/provenance.py verify and clean it."
+    },
+    {
+      "id": "CMS-001",
+      "status": "open",
+      "note": "verify_cms.sh checked Lehigh/Northampton under Rating Area 7; they are Rating Area 6."
+    }
+  ],
+  "next_actions": [
+    "Run scripts/termux_setup.sh then scripts/release_check.sh on Termux",
+    "Run src/refresh_check.py --file <saved PID page> once and read the report",
+    "Install the wiki: bash scripts/install_wiki.sh, review, push by hand",
+    "Run src/refresh_check.py --file <saved PID page> once and read the report",
+    "Run the verify workflow once from the Actions tab",
+    "Rebuild the briefing from the PID table, then gate it",
+    "Confirm Ambetter Bronze offering in its SERFF exhibits",
+    "Read PID decision summaries for HPP, Keystone East, QCC",
+    "Re-verify Act 146 and Article XXI text on palegis.us",
+    "Consider making the repo private until the briefing is corrected"
+  ],
+  "secrets_stored": false,
+  "untested": [
+    "scripts/termux_setup.sh on a device",
+    "src/refresh_check.py against the live PID page",
+    "GitHub Actions workflow (not run)"
+  ]
+}
