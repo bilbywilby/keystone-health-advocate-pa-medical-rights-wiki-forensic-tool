@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pennsylvania Patient Rights & Advocacy Interactive Navigator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        accent: {
+                            emerald: '#059669',
+                            amber: '#d97706',
+                            rose: '#e11d48',
+                            purple: '#7c3aed'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Embedded minimal chart container styling -->
+    <!-- Chosen Palette: Warm Neutral Harmonious - Slate & Blue Accent -->
+    <!-- Application Structure Plan: Interactive single-page advocacy portal designed for PA patients and healthcare advocates. Features: (1) Executive Data Dashboard with Chart.js visualizations showing the PA denial vs appeal gap and doctor prior-auth burden; (2) Filterable Legal Routes Matrix covering Act 146, Act 54, Act 42, DMIs, and Minor EOB Privacy; (3) Interactive Scenario-Based Prior Auth & Appeal Timeline Tool; (4) Dynamic Household Income & Charity Care (501r / 300% FPG) Calculator; (5) Debt Protection Defense Explorer highlighting PA's complete wage garnishment ban; (6) Interactive Action Plan Builder linked to official PA state portals. Designed for immediate clarity, self-empowerment, and actionable legal guidance. -->
+    <!-- Visualization & Content Choices: Data on PA 2.1M denials vs 3,156 appeals represented via Chart.js bar & donut charts with hover tooltips; Prior Auth physician survey harms visualized via Chart.js horizontal bar chart; Adjudication timelines structured via interactive tabbed workflow; Income eligibility logic calculated via JS dynamic FPG formula; Debt protection laws presented in interactive card defense matrix. All visualizations use Chart.js HTML5 Canvas. NO SVG or Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 280px;
+            max-height: 380px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 320px;
+            }
+        }
+        .tab-btn.active {
+            border-bottom-color: #2563eb;
+            color: #2563eb;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans min-h-screen flex flex-col">
+
+    <!-- Sticky Header Navigation -->
+    <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">⚖️</span>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight">PA Patient Rights Portal</h1>
+                        <p class="text-xs text-slate-400 hidden sm:block">Legal Routes, Appeals & Medical Debt Defense Navigator</p>
+                    </div>
+                </div>
+                <nav class="hidden md:flex space-x-6 text-sm font-medium">
+                    <a href="#overview" class="hover:text-blue-400 transition-colors">Overview</a>
+                    <a href="#legal-routes" class="hover:text-blue-400 transition-colors">Legal Routes</a>
+                    <a href="#timelines" class="hover:text-blue-400 transition-colors">Timelines</a>
+                    <a href="#calculator" class="hover:text-blue-400 transition-colors">Charity Calculator</a>
+                    <a href="#debt-defense" class="hover:text-blue-400 transition-colors">Debt Protection</a>
+                    <a href="#action-plan" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md transition-colors">Action Generator</a>
+                </nav>
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-slate-300 hover:text-white p-2 text-xl focus:outline-none">☰</button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-800 px-4 pt-2 pb-4 space-y-2 border-t border-slate-700 text-sm">
+            <a href="#overview" class="block py-1 hover:text-blue-400">Overview & Data</a>
+            <a href="#legal-routes" class="block py-1 hover:text-blue-400">5 Statutory Routes</a>
+            <a href="#timelines" class="block py-1 hover:text-blue-400">Act 146 Appeals Timeline</a>
+            <a href="#calculator" class="block py-1 hover:text-blue-400">Charity Care Calculator</a>
+            <a href="#debt-defense" class="block py-1 hover:text-blue-400">Debt & Wage Defense</a>
+            <a href="#action-plan" class="block py-1 text-blue-300 font-semibold">Action Plan Generator</a>
+        </div>
+    </header>
+
+    <!-- Hero / Intro Banner -->
+    <section class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white py-10 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="max-w-3xl">
+                <span class="inline-block bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs font-semibold px-3 py-1 rounded-full mb-3">Commonwealth Rights Guide</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Know Your Rights. Contest Denials. Protect Your Finances.</h2>
+                <p class="mt-3 text-slate-300 text-base sm:text-lg leading-relaxed">
+                    Pennsylvania state and federal laws provide robust statutory protections against health insurance denials, surprise out-of-network balance bills, and aggressive medical debt collection. Explore your rights, calculate financial relief thresholds, and enforce statutory protections.
+                </p>
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <a href="#legal-routes" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg shadow transition-colors text-sm">Explore Legal Routes</a>
+                    <a href="#calculator" class="bg-slate-700 hover:bg-slate-600 text-slate-100 font-semibold px-5 py-2.5 rounded-lg border border-slate-600 transition-colors text-sm">Check Financial Relief</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- SECTION 1: EXECUTIVE OVERVIEW & DISPUTE DATA DASHBOARD -->
+        <section id="overview" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+            <div class="border-b border-slate-100 pb-4 mb-6">
+                <div class="flex items-center space-x-2 text-blue-600 font-semibold text-sm uppercase tracking-wider">
+                    <span>📊 Section 1</span>
+                    <span>•</span>
+                    <span>Pennsylvania Landscape</span>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900 mt-1">Dispute Landscape & The Appeals Opportunity Gap</h3>
+                <p class="mt-2 text-slate-600 text-sm leading-relaxed">
+                    This section illustrates the stark contrast between health plan denial rates and consumer appeals in Pennsylvania. Despite over 2.1 million claim denials annually in PA's individual market, less than 0.2% of consumers challenge their insurer. However, almost half of those who appeal successfully overturn their denial—proving that asserting statutory rights under Pennsylvania law is highly effective.
+                </p>
+            </div>
+
+            <!-- Key Metrics Grid -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center">
+                    <div class="text-xs font-semibold text-slate-500 uppercase">PA Claims Denied (Annual)</div>
+                    <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">2,135,041</div>
+                    <div class="text-xs text-slate-500 mt-1">QHP Individual Market</div>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center">
+                    <div class="text-xs font-semibold text-amber-700 uppercase">Internal Appeals Filed</div>
+                    <div class="text-2xl sm:text-3xl font-extrabold text-amber-900 mt-1">3,156</div>
+                    <div class="text-xs text-amber-700 mt-1">&lt; 0.2% Filing Rate</div>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-center">
+                    <div class="text-xs font-semibold text-emerald-700 uppercase">Internal Appeal Overturn Rate</div>
+                    <div class="text-2xl sm:text-3xl font-extrabold text-emerald-900 mt-1">48%</div>
+                    <div class="text-xs text-emerald-700 mt-1">Near 1-in-2 Success Rate</div>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-center">
+                    <div class="text-xs font-semibold text-blue-700 uppercase">PA Wage Garnishment Rate</div>
+                    <div class="text-2xl sm:text-3xl font-extrabold text-blue-900 mt-1">0%</div>
+                    <div class="text-xs text-blue-700 mt-1">Total Statutory Exemption</div>
+                </div>
+            </div>
+
+            <!-- Charts Container -->
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-slate-900 text-base mb-2 text-center">PA Claim Denials vs Consumer Appeals Challenge</h4>
+                    <p class="text-xs text-slate-500 text-center mb-4">Comparison of volume demonstrating massive under-utilization of appeal rights</p>
+                    <div class="chart-container">
+                        <canvas id="appealsChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-slate-900 text-base mb-2 text-center">Physician-Reported Harm from Prior Auth Delays</h4>
+                    <p class="text-xs text-slate-500 text-center mb-4">Survey data highlighting care delays, abandonment, and clinical decline</p>
+                    <div class="chart-container">
+                        <canvas id="harmChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SECTION 2: THE 5 PRIMARY LEGAL ROUTES EXPLORER -->
+        <section id="legal-routes" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+            <div class="border-b border-slate-100 pb-4 mb-6">
+                <div class="flex items-center space-x-2 text-blue-600 font-semibold text-sm uppercase tracking-wider">
+                    <span>⚖️ Section 2</span>
+                    <span>•</span>
+                    <span>Statutory Protections</span>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900 mt-1">The 5 Primary Legal Routes for Pennsylvania Residents</h3>
+                <p class="mt-2 text-slate-600 text-sm leading-relaxed">
+                    Pennsylvania statutory law and federal regulations provide distinct legal mechanisms to resolve healthcare coverage disputes, recalculate unaffordable insurance premiums, correct data errors, and preserve privacy. Filter or select any route below to view statutory citations, plain-language explanations, and key data points.
+                </p>
+
+                <!-- Filter Controls -->
+                <div class="mt-4 flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-semibold text-slate-500 mr-2">Filter Category:</span>
+                    <button class="filter-btn active bg-blue-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full" data-filter="all">All Routes</button>
+                    <button class="filter-btn bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-full" data-filter="prior-auth">Prior Auth & Appeals</button>
+                    <button class="filter-btn bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-full" data-filter="pennie">Pennie & Premiums</button>
+                    <button class="filter-btn bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-full" data-filter="privacy">Minor Privacy & Parity</button>
+                </div>
+            </div>
+
+            <!-- Legal Routes Grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="routes-grid">
+
+                <!-- Route 1 -->
+                <div class="route-card border border-slate-200 hover:border-blue-500 rounded-xl p-5 transition-all shadow-sm hover:shadow-md bg-white flex flex-col justify-between" data-category="prior-auth">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-extrabold px-2.5 py-1 rounded">Route 1</span>
+                            <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Act 146 of 2022</span>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-lg mb-2">External Appeals for Medical Denials</h4>
+                        <p class="text-xs text-slate-500 font-mono mb-3">40 P.S. § 991.2101 et seq.</p>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            When insurers deny treatments as "not medically necessary", Act 146 grants the right to a free, binding independent external review by the PA Insurance Department (PID) after internal appeals.
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100">
+                        <button onclick="openModal('route1')" class="text-blue-600 hover:text-blue-800 font-semibold text-xs flex items-center space-x-1">
+                            <span>Read Plain Language Details & Data</span>
+                            <span>→</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Route 2 -->
+                <div class="route-card border border-slate-200 hover:border-blue-500 rounded-xl p-5 transition-all shadow-sm hover:shadow-md bg-white flex flex-col justify-between" data-category="pennie">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-2.5 py-1 rounded">Route 2</span>
+                            <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Act 54 of 2024</span>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-lg mb-2">Recalculating Unaffordable Premiums</h4>
+                        <p class="text-xs text-slate-500 font-mono mb-3">PA Fiscal Code Budget Act 54</p>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            PA caps baseline health insurance costs at 8.5% of household income on Pennie. Job loss or income drops allow demanding immediate MAGI recalculations and enhanced state subsidies.
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100">
+                        <button onclick="openModal('route2')" class="text-blue-600 hover:text-blue-800 font-semibold text-xs flex items-center space-x-1">
+                            <span>Read Plain Language Details & Data</span>
+                            <span>→</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Route 3 -->
+                <div class="route-card border border-slate-200 hover:border-blue-500 rounded-xl p-5 transition-all shadow-sm hover:shadow-md bg-white flex flex-col justify-between" data-category="pennie">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="bg-purple-100 text-purple-800 text-xs font-extrabold px-2.5 py-1 rounded">Route 3</span>
+                            <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">45 CFR § 155.320</span>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-lg mb-2">Rebutting Income Discrepancies & DMIs</h4>
+                        <p class="text-xs text-slate-500 font-mono mb-3">45 CFR § 155.315(f) / 5 U.S.C. § 552a</p>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            When exchange data matching flags income mismatches against tax returns, federal rules mandate a 90-day "inconsistency window" before subsidies can be altered.
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100">
+                        <button onclick="openModal('route3')" class="text-blue-600 hover:text-blue-800 font-semibold text-xs flex items-center space-x-1">
+                            <span>Read Plain Language Details & Data</span>
+                            <span>→</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Route 4 -->
+                <div class="route-card border border-slate-200 hover:border-blue-500 rounded-xl p-5 transition-all shadow-sm hover:shadow-md bg-white flex flex-col justify-between" data-category="pennie">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="bg-amber-100 text-amber-800 text-xs font-extrabold px-2.5 py-1 rounded">Route 4</span>
+                            <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Act 42 of 2019</span>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-lg mb-2">Special Enrollment for System Outages</h4>
+                        <p class="text-xs text-slate-500 font-mono mb-3">40 Pa.C.S. § 9301 et seq.</p>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            If website glitches, login crashes, or platform outages prevent enrolling on Pennie during standard windows, Act 42 permits petitioning for a Special Enrollment Period (SEP).
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100">
+                        <button onclick="openModal('route4')" class="text-blue-600 hover:text-blue-800 font-semibold text-xs flex items-center space-x-1">
+                            <span>Read Plain Language Details & Data</span>
+                            <span>→</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Route 5 -->
+                <div class="route-card border border-slate-200 hover:border-blue-500 rounded-xl p-5 transition-all shadow-sm hover:shadow-md bg-white flex flex-col justify-between" data-category="privacy">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="bg-rose-100 text-rose-800 text-xs font-extrabold px-2.5 py-1 rounded">Route 5</span>
+                            <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">35 P.S. § 10101</span>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-lg mb-2">Minor Health Privacy & EOB Suppression</h4>
+                        <p class="text-xs text-slate-500 font-mono mb-3">PA Minors' Consent Act & Act 147</p>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            Minors consenting to confidential care can direct insurers to suppress Explanation of Benefits (EOBs) and redirect notices to protect mental health and care privacy.
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100">
+                        <button onclick="openModal('route5')" class="text-blue-600 hover:text-blue-800 font-semibold text-xs flex items-center space-x-1">
+                            <span>Read Plain Language Details & Data</span>
+                            <span>→</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- SECTION 3: PRIOR AUTHORIZATION & APPEAL TIMELINES -->
+        <section id="timelines" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+            <div class="border-b border-slate-100 pb-4 mb-6">
+                <div class="flex items-center space-x-2 text-blue-600 font-semibold text-sm uppercase tracking-wider">
+                    <span>⏱️ Section 3</span>
+                    <span>•</span>
+                    <span>Act 146 Timelines</span>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900 mt-1">Mandatory Adjudication Timelines & Peer-to-Peer Rights</h3>
+                <p class="mt-2 text-slate-600 text-sm leading-relaxed">
+                    Pennsylvania Act 146 establishes legally binding adjudication windows for health plans operating within the Commonwealth. Insurers that fail to render decisions within these strict deadlines violate state law. Select a care scenario to view statutory timelines and required clinical actions.
+                </p>
+            </div>
+
+            <!-- Scenario Selector Tabs -->
+            <div class="flex flex-wrap border-b border-slate-200 mb-6 gap-2 sm:gap-4 text-xs sm:text-sm font-medium" id="timeline-tabs">
+                <button onclick="switchTimeline('urgent-rx')" class="timeline-tab-btn active border-b-2 border-blue-600 text-blue-600 pb-2 px-3 font-semibold">Urgent Rx / Step Therapy</button>
+                <button onclick="switchTimeline('urgent-nonrx')" class="timeline-tab-btn border-b-2 border-transparent hover:text-slate-700 text-slate-500 pb-2 px-3">Urgent Non-Pharmacy</button>
+                <button onclick="switchTimeline('standard-nonrx')" class="timeline-tab-btn border-b-2 border-transparent hover:text-slate-700 text-slate-500 pb-2 px-3">Standard Care (15-Day)</button>
+                <button onclick="switchTimeline('emergency')" class="timeline-tab-btn border-b-2 border-transparent hover:text-slate-700 text-slate-500 pb-2 px-3">Emergency Care (60 Min)</button>
+                <button onclick="switchTimeline('intraoperative')" class="timeline-tab-btn border-b-2 border-transparent hover:text-slate-700 text-slate-500 pb-2 px-3">Intraoperative Care</button>
+            </div>
+
+            <!-- Timeline Content Cards -->
+            <div id="timeline-content-area" class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                <!-- Content dynamically rendered via JavaScript -->
+            </div>
+        </section>
+
+
+        <!-- SECTION 4: INCOME & CHARITY CARE CALCULATOR -->
+        <section id="calculator" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+            <div class="border-b border-slate-100 pb-4 mb-6">
+                <div class="flex items-center space-x-2 text-blue-600 font-semibold text-sm uppercase tracking-wider">
+                    <span>🧮 Section 4</span>
+                    <span>•</span>
+                    <span>Hospital Financial Relief</span>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900 mt-1">Charity Care Eligibility & Pennie Cost-Cap Calculator</h3>
+                <p class="mt-2 text-slate-600 text-sm leading-relaxed">
+                    Tax-exempt non-profit hospitals in Pennsylvania (such as Penn Medicine, UPMC, and Allegheny Health Network) are required under federal IRC § 501(r) to provide financial assistance. Most regional systems grant <strong>100% free care for household incomes up to 300% of the Federal Poverty Guidelines (FPG)</strong> and cap charges at Amounts Generally Billed (AGB). Use this dynamic tool to test your family's statutory eligibility.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-12 gap-8 items-start">
+                <!-- Calculator Form -->
+                <div class="lg:col-span-5 bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-5">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Household Size</label>
+                        <select id="calc-hh-size" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="1">1 Person</option>
+                            <option value="2">2 Persons</option>
+                            <option value="3" selected>3 Persons</option>
+                            <option value="4">4 Persons</option>
+                            <option value="5">5 Persons</option>
+                            <option value="6">6 Persons</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Annual Household Income ($)</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-semibold">$</span>
+                            <input type="number" id="calc-income" value="48000" class="w-full bg-white border border-slate-300 rounded-lg pl-7 pr-3 py-2 text-slate-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter income">
+                        </div>
+                    </div>
+
+                    <button onclick="calculateEligibility()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition-colors text-sm shadow">
+                        Calculate Relief Eligibility
+                    </button>
+                </div>
+
+                <!-- Calculator Output Display -->
+                <div class="lg:col-span-7 bg-blue-50/60 p-6 rounded-xl border border-blue-200 space-y-4" id="calc-results">
+                    <div class="flex items-center justify-between border-b border-blue-200/60 pb-3">
+                        <span class="text-xs font-bold uppercase text-blue-800">Your Household FPG Level</span>
+                        <span class="text-xl font-extrabold text-blue-900" id="res-fpg-pct">186% FPG</span>
+                    </div>
+
+                    <div class="space-y-3 text-sm">
+                        <div class="bg-white p-4 rounded-lg border border-blue-100 shadow-sm">
+                            <div class="flex items-center space-x-2 text-emerald-700 font-bold text-sm mb-1">
+                                <span>🏥 Hospital Charity Care Status (IRC § 501(r)):</span>
+                            </div>
+                            <p class="text-slate-800 font-semibold text-base" id="res-charity-tier">Eligible for 100% Free Hospital Care</p>
+                            <p class="text-xs text-slate-600 mt-1" id="res-charity-desc">
+                                Your income falls at or below 300% FPG ($77,460 for 3 persons). Major PA non-profit systems (Penn Medicine, UPMC, AHN) must write off 100% of emergency/medically necessary care.
+                            </p>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg border border-blue-100 shadow-sm">
+                            <div class="flex items-center space-x-2 text-blue-700 font-bold text-sm mb-1">
+                                <span>💳 Pennie Marketplace Cost Cap (Act 54):</span>
+                            </div>
+                            <p class="text-slate-800 font-semibold" id="res-pennie-cap">Maximum Health Plan Premium Capped at 8.5% of MAGI</p>
+                            <p class="text-xs text-slate-600 mt-1" id="res-pennie-desc">
+                                Under Pennsylvania Act 54, baseline health coverage costs are capped so you are eligible for state-funded subsidies to reduce monthly premiums.
+                            </p>
+                        </div>
+
+                        <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 text-xs text-amber-900 leading-relaxed">
+                            <strong>⚠️ 120-Day ECA Freeze Protection:</strong> Tax-exempt hospitals are strictly barred from taking Extraordinary Collection Actions (credit reporting, lawsuits) during the first 120 days post-discharge without evaluating FAP eligibility.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SECTION 5: DEBT COLLECTION & WAGE PROTECTION SUITE -->
+        <section id="debt-defense" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+            <div class="border-b border-slate-100 pb-4 mb-6">
+                <div class="flex items-center space-x-2 text-blue-600 font-semibold text-sm uppercase tracking-wider">
+                    <span>🛡️ Section 5</span>
+                    <span>•</span>
+                    <span>Debt & Execution Protections</span>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900 mt-1">Medical Debt Collection Defenses & Wage Protection</h3>
+                <p class="mt-2 text-slate-600 text-sm leading-relaxed">
+                    Pennsylvania offers some of the strongest consumer protections against abusive debt collection in the nation. Under state law, wage garnishment for ordinary medical debt is strictly prohibited, original creditors are liable for harassment, and debts expire after four years.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+
+                <!-- Defense Card 1 -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 hover:border-slate-300 transition-all">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-2xl">🚫</span>
+                        <span class="text-xs font-mono font-bold bg-blue-100 text-blue-800 px-2.5 py-1 rounded">42 Pa.C.S. § 8127</span>
+                    </div>
+                    <h4 class="font-bold text-slate-900 text-base mb-2">Total Wage Garnishment Exemption</h4>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        Personal earnings held by an employer are <strong>completely exempt from wage attachment or garnishment</strong> for civil medical debt judgments in Pennsylvania.
+                    </p>
+                    <div class="bg-white p-3 rounded border border-slate-200 text-xs text-slate-600 space-y-1">
+                        <p>• <strong>Strict Exceptions Only:</strong> Child support, back rent, taxes, student loans.</p>
+                        <p>• <strong>Collection Violation:</strong> Any collector threatening paycheck garnishment for medical bills violates the FDCPA and FCEUA.</p>
+                    </div>
+                </div>
+
+                <!-- Defense Card 2 -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 hover:border-slate-300 transition-all">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-2xl">⏱️</span>
+                        <span class="text-xs font-mono font-bold bg-purple-100 text-purple-800 px-2.5 py-1 rounded">42 Pa.C.S. § 5525(a)</span>
+                    </div>
+                    <h4 class="font-bold text-slate-900 text-base mb-2">Four-Year Statute of Limitations</h4>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        Creditors have a maximum window of <strong>4 years from default</strong> to sue on consumer medical debt in Pennsylvania courts.
+                    </p>
+                    <div class="bg-white p-3 rounded border border-slate-200 text-xs text-slate-600 space-y-1">
+                        <p>• <strong>Time-Barred Defense:</strong> Lawsuits filed after 4 years can be dismissed immediately.</p>
+                        <p>• <strong>⚠️ Warning:</strong> Making even a tiny partial payment on old debt can restart the 4-year clock!</p>
+                    </div>
+                </div>
+
+                <!-- Defense Card 3 -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 hover:border-slate-300 transition-all">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-2xl">📜</span>
+                        <span class="text-xs font-mono font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded">73 P.S. § 2270.1</span>
+                    </div>
+                    <h4 class="font-bold text-slate-900 text-base mb-2">FCEUA & Treble Damages Protections</h4>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        PA's Fair Credit Extension Uniformity Act applies fair practice requirements directly to <strong>original creditors (hospitals, doctors)</strong>, not just debt agencies.
+                    </p>
+                    <div class="bg-white p-3 rounded border border-slate-200 text-xs text-slate-600 space-y-1">
+                        <p>• <strong>UTPCPL Link:</strong> FCEUA violations trigger PA Unfair Trade Practices Law.</p>
+                        <p>• <strong>Remedies:</strong> Patients can sue for treble damages + mandatory attorney fees for abusive tactics.</p>
+                    </div>
+                </div>
+
+                <!-- Defense Card 4 -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 hover:border-slate-300 transition-all">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-2xl">🏦</span>
+                        <span class="text-xs font-mono font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded">42 Pa.C.S. § 8123</span>
+                    </div>
+                    <h4 class="font-bold text-slate-900 text-base mb-2">$300 Bank Account Exemption Claim</h4>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        While wage garnishment is illegal, creditors may attempt bank account levies post-judgment. Debtors retain a statutory $300 cash exemption.
+                    </p>
+                    <div class="bg-white p-3 rounded border border-slate-200 text-xs text-slate-600 space-y-1">
+                        <p>• <strong>Procedural Rule:</strong> File exemption under Pa. R.C.P. 3123.1 within 30 days of notice.</p>
+                        <p>• <strong>Protection:</strong> Prevents total freezing of basic checking/savings funds.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- SECTION 6: INTERACTIVE ACTION PLAN & PORTAL DIRECTORY -->
+        <section id="action-plan" class="bg-slate-900 text-white rounded-2xl shadow-md p-6 sm:p-8">
+            <div class="border-b border-slate-800 pb-4 mb-6">
+                <div class="flex items-center space-x-2 text-blue-400 font-semibold text-sm uppercase tracking-wider">
+                    <span>📝 Section 6</span>
+                    <span>•</span>
+                    <span>Personalized Advocacy Roadmap</span>
+                </div>
+                <h3 class="text-2xl font-bold text-white mt-1">Interactive Action Checklist & Official PA State Portals</h3>
+                <p class="mt-2 text-slate-300 text-sm leading-relaxed">
+                    Select your current medical insurance or billing issue below to generate an immediate, step-by-step action plan along with direct links to Pennsylvania state regulatory portals.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-12 gap-8">
+                <!-- Situation Checkboxes -->
+                <div class="md:col-span-5 space-y-3">
+                    <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Select Your Situation(s):</label>
+
+                    <label class="flex items-start space-x-3 bg-slate-800 hover:bg-slate-750 p-3 rounded-lg cursor-pointer border border-slate-700 transition-colors">
+                        <input type="checkbox" class="action-check mt-1 rounded text-blue-600 focus:ring-blue-500" value="denial" onchange="generateActionPlan()">
+                        <span class="text-xs sm:text-sm text-slate-200">My health plan denied prior authorization or coverage for medical treatment.</span>
+                    </label>
+
+                    <label class="flex items-start space-x-3 bg-slate-800 hover:bg-slate-750 p-3 rounded-lg cursor-pointer border border-slate-700 transition-colors">
+                        <input type="checkbox" class="action-check mt-1 rounded text-blue-600 focus:ring-blue-500" value="surprise" onchange="generateActionPlan()">
+                        <span class="text-xs sm:text-sm text-slate-200">I received an unexpected out-of-network balance bill from an ER or hospital.</span>
+                    </label>
+
+                    <label class="flex items-start space-x-3 bg-slate-800 hover:bg-slate-750 p-3 rounded-lg cursor-pointer border border-slate-700 transition-colors">
+                        <input type="checkbox" class="action-check mt-1 rounded text-blue-600 focus:ring-blue-500" value="hospital-bill" onchange="generateActionPlan()">
+                        <span class="text-xs sm:text-sm text-slate-200">I have high non-profit hospital bills and need charity financial assistance.</span>
+                    </label>
+
+                    <label class="flex items-start space-x-3 bg-slate-800 hover:bg-slate-750 p-3 rounded-lg cursor-pointer border border-slate-700 transition-colors">
+                        <input type="checkbox" class="action-check mt-1 rounded text-blue-600 focus:ring-blue-500" value="collection" onchange="generateActionPlan()">
+                        <span class="text-xs sm:text-sm text-slate-200">A collection agency or original creditor is threatening me over medical debt.</span>
+                    </label>
+                </div>
+
+                <!-- Action Output Window -->
+                <div class="md:col-span-7 bg-slate-800 p-6 rounded-xl border border-slate-700 flex flex-col justify-between">
+                    <div>
+                        <h4 class="font-bold text-white text-base mb-3 flex items-center justify-between">
+                            <span>Your Action Steps</span>
+                            <span class="text-xs font-normal text-slate-400">Targeted Guidance</span>
+                        </h4>
+                        <div id="action-plan-output" class="space-y-3 text-xs sm:text-sm text-slate-300">
+                            <p class="text-slate-400 italic">← Check one or more boxes on the left to display tailored statutory action steps and direct official links.</p>
+                        </div>
+                    </div>
+
+                    <!-- Direct Official PA Links -->
+                    <div class="mt-6 pt-4 border-t border-slate-700">
+                        <div class="text-xs font-bold text-slate-400 uppercase mb-2">Official Pennsylvania Regulatory Portals:</div>
+                        <div class="flex flex-wrap gap-2 text-xs">
+                            <a href="https://www.pa.gov/agencies/insurance/newsroom/pennsylvania-insurance-department-and-code-pa-launch-state-external-review-process-and-new-website-for-pennsylvanians-to-appeal-denied-health-plan-services" target="_blank" rel="noopener noreferrer" class="bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 border border-blue-500/30 px-2.5 py-1 rounded transition-colors">
+                                ↗ PID State External Review Portal
+                            </a>
+                            <a href="https://www.pa.gov/services/insurance/request-a-review-of-an-unexpected-medical-bill-no-surprises-act" target="_blank" rel="noopener noreferrer" class="bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded transition-colors">
+                                ↗ Unexpected Medical Bill Portal
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 mt-12 text-xs text-center">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>Pennsylvania Patient Rights & Legal Advocacy Portal • Educational & Information Resource</p>
+            <p class="mt-1 text-slate-500">Based on PA Act 146 of 2022, Act 54 of 2024, Act 42 of 2019, 42 Pa.C.S. § 8127, 73 P.S. § 2270.1, and IRC § 501(r).</p>
+        </div>
+    </footer>
+
+    <!-- MODAL FOR DETAILED LEGAL ROUTES -->
+    <div id="route-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl font-bold">✖</button>
+            <div id="modal-body">
+                <!-- Modal content injected dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Modal & Legal Routes Data
+        const routesData = {
+            route1: {
+                title: "Legal Route 1: External Appeals for Medical Denials & Prior Authorization",
+                statute: "Pennsylvania Act 146 of 2022 (40 P.S. § 991.2101 et seq.)",
+                explanation: "If your health insurance company refuses to cover a doctor-recommended treatment, test, or medication by claiming it is not 'medically necessary' or lacked prior authorization, you do not have to accept their decision. Once internal appeals are exhausted, PA law gives you the right to file an independent external review through the PA Insurance Department (PID) at zero cost. If the independent medical expert agrees with your doctor, the insurer is legally bound to pay.",
+                dataPoints: [
+                    "Overturn Rate vs Filing Gap: PA individual market plans denied 2,135,041 claims in a single year, yet consumers filed only 3,156 internal appeals (<0.2% filing rate). Among those who appealed, 48% successfully overturned the denial.",
+                    "State External Review Success: Over 100 Pennsylvanians overturned health plan denials within the first 6 months of the new PID external review process.",
+                    "Physician Care Harm: 93% of doctors report prior auth causes care delays, 82% report treatment abandonment, and 26% report measurable health decline."
+                ]
+            },
+            route2: {
+                title: "Legal Route 2: Recalculating Unaffordable Premiums & Hardship Appeals",
+                statute: "Pennsylvania Act 54 of 2024 (PA Fiscal Code Budget Act 54)",
+                explanation: "Pennsylvania law sets a financial benchmark capping baseline health insurance costs so residents spend no more than 8.5% of household income on coverage. If you experience job loss, reduced hours, or income drops, you have a legal right to demand an immediate re-evaluation of your Modified Adjusted Gross Income (MAGI) on Pennie to lower your monthly payments.",
+                dataPoints: [
+                    "Enrollment Surges & Drops: Unsubsidized individual market premiums surged by an average of 102%, causing a record 85,000 enrollees to drop coverage during open enrollment (~1,000 Pennsylvanians/day).",
+                    "State Subsidy Relief: State affordability subsidies under Act 54 reduce average enrollee premiums by 9% to 12%, delivering thousands in annual savings to over 280,000 Pennsylvanians.",
+                    "Uninsured Anxiety: 80% of uninsured Pennsylvanians report severe anxiety over medical debt crises."
+                ]
+            },
+            route3: {
+                title: "Legal Route 3: Rebutting Income Matching Discrepancies & DMIs",
+                statute: "45 CFR § 155.320, 45 CFR § 155.315(f) & Privacy Act (5 U.S.C. § 552a)",
+                explanation: "If the exchange flags a 'Data Matching Issue' (DMI) claiming your application income does not match old IRS tax returns, they cannot cut off your subsidies immediately. Federal regulations mandate a 90-day warning window ('inconsistency period') to submit recent pay stubs, W-2s, or employer letters.",
+                dataPoints: [
+                    "Procedural Churn: Most DMIs stem from variable gig schedules, seasonal shifts, or job changes rather than fraud.",
+                    "Strict 10-Year Audits: Federal computer matching rules force administering agencies to retain all matched logs for 10 years, creating an auditable paper trail to challenge automated errors.",
+                    "Secondary Verification Rules: Federal PY2027 rules mandate strict secondary verification for incomes under 100% FPL."
+                ]
+            },
+            route4: {
+                title: "Legal Route 4: Special Enrollment Periods for System Outages",
+                statute: "Pennsylvania Act 42 of 2019 (40 Pa.C.S. § 9301 et seq.)",
+                explanation: "If you missed an open enrollment deadline or were prevented from selecting a plan because the Pennie website crashed, experienced login failures, or displayed errors, state law protects you. You can submit an administrative petition under Act 42 to demand a Special Enrollment Period (SEP).",
+                dataPoints: [
+                    "Access Friction: Pennie reported a 12% drop in new sign-ups year-over-year, largely driven by technical access friction and cost confusion.",
+                    "Medicaid Safety Net: Administrative SEPs established under Act 42 served as a vital bridge during Medicaid unwinding.",
+                    "High Approval: Submitting documented proof of platform access issues routinely yields administrative exceptions."
+                ]
+            },
+            route5: {
+                title: "Legal Route 5: Protecting Minor Health Privacy & EOB Suppression",
+                statute: "PA Minors' Consent to Medical Care Act (35 P.S. § 10101) & Act 147",
+                explanation: "In Pennsylvania, minors have the legal right to consent to certain medical, mental health, and reproductive services. Under Act 147, young people can direct health insurance companies to suppress Explanation of Benefits (EOB) statements and redirect notices to a safe address so confidential care is not disclosed to parents.",
+                dataPoints: [
+                    "Youth Mental Health Crisis: Nearly 1 in 5 PA youth aged 12-17 (272,000) experienced a major depressive episode in a single year.",
+                    "Parity Refunds: State regulatory audits into illegal mental health treatment limitations led the PID to order $517,375 in direct consumer reimbursements.",
+                    "Out-of-Network Disparities: 1 in 7 behavioral health visits are out-of-network, where therapy costs 130% more."
+                ]
+            }
+        };
+
+        function openModal(routeKey) {
+            const data = routesData[routeKey];
+            if (!data) return;
+
+            let pointsHtml = data.dataPoints.map(p => `<li class="mb-2 flex items-start space-x-2"><span class="text-blue-600 font-bold">•</span><span>${p}</span></li>`).join('');
+
+            document.getElementById('modal-body').innerHTML = `
+                <div class="border-b border-slate-100 pb-3 mb-4">
+                    <span class="text-xs font-mono font-bold bg-blue-100 text-blue-800 px-2 py-1 rounded">${data.statute}</span>
+                    <h3 class="text-xl font-bold text-slate-900 mt-2">${data.title}</h3>
+                </div>
+                <div class="space-y-4 text-sm text-slate-700">
+                    <div>
+                        <h4 class="font-bold text-slate-900 mb-1">Plain-Language Layman Explanation:</h4>
+                        <p class="bg-slate-50 p-3 rounded.lg border border-slate-200 leading-relaxed">${data.explanation}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-900 mb-2">Supporting Data-Driven Observations:</h4>
+                        <ul class="text-xs text-slate-600 space-y-1">${pointsHtml}</ul>
+                    </div>
+                </div>
+            `;
+            document.getElementById('route-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('route-modal').classList.add('hidden');
+        }
+
+        // Timeline Data & Switcher
+        const timelines = {
+            'urgent-rx': {
+                title: "Urgent Prescription Drugs & Step Therapy Exceptions",
+                statute: "40 P.S. § 991.2153(i)",
+                timeframe: "24 Hours Maximum",
+                details: "Health plans must render an authorization or step-therapy exception decision within 24 hours of receiving clinical requests. Step therapy ('fail first') rules require expedited exception pathways when first-line drugs are contraindicated."
+            },
+            'urgent-nonrx': {
+                title: "Urgent Non-Pharmacy Services",
+                statute: "Act 146 § 2153",
+                timeframe: "1 Business Day",
+                details: "For urgent non-pharmacy care (e.g. urgent diagnostic scans or outpatient interventions), insurers must respond within 1 business day of receiving complete documentation."
+            },
+            'standard-nonrx': {
+                title: "Standard Non-Urgent Care",
+                statute: "40 P.S. § 991.2153",
+                timeframe: "15 Days Maximum",
+                details: "Standard prior authorization review limits insurers to 15 calendar days. Treating physicians have the right to request peer-to-peer discussions with a PA-licensed specialist during this period."
+            },
+            'emergency': {
+                title: "Emergency Services & Post-Stabilization",
+                statute: "40 P.S. § 991.2116",
+                timeframe: "60 Minutes Decision Limit",
+                details: "Emergency care is strictly exempt from prior approval. Post-stabilization or post-evaluation requests must be approved or denied within 60 minutes of the facility's authorization request."
+            },
+            'intraoperative': {
+                title: "Closely Related Intraoperative Care",
+                statute: "40 P.S. § 991.2153(j)",
+                timeframe: "3 Days Post-Procedure Notice",
+                details: "When surgeons perform an unanticipated, medically necessary procedure closely related to an authorized surgery during an operation, insurers cannot issue pre-authorization denials if notified within 3 business days."
+            }
+        };
+
+        function switchTimeline(key) {
+            const data = timelines[key];
+            if (!data) return;
+
+            // Update tab styles
+            document.querySelectorAll('.timeline-tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-blue-600', 'text-blue-600', 'font-semibold');
+                btn.classList.add('border-transparent', 'text-slate-500');
+            });
+            event.target.classList.add('active', 'border-blue-600', 'text-blue-600', 'font-semibold');
+            event.target.classList.remove('border-transparent', 'text-slate-500');
+
+            // Render content
+            document.getElementById('timeline-content-area').innerHTML = `
+                <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-3">
+                    <h4 class="font-bold text-slate-900 text-lg">${data.title}</h4>
+                    <span class="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">${data.timeframe}</span>
+                </div>
+                <p class="text-xs font-mono text-slate-500 mb-2">Statutory Citation: ${data.statute}</p>
+                <p class="text-sm text-slate-700 leading-relaxed mb-4">${data.details}</p>
+                <div class="bg-white p-3 rounded-lg border border-slate-200 text-xs text-slate-600 flex items-center space-x-2">
+                    <span class="text-base">💡</span>
+                    <span><strong>Peer-to-Peer Rights:</strong> Treating doctors can request a peer-to-peer review with a PA-licensed peer specialist at any point prior to final internal appeal decision.</span>
+                </div>
+            `;
+        }
+
+        // Charity Care & FPG Calculator Logic
+        function calculateEligibility() {
+            const hhSize = parseInt(document.getElementById('calc-hh-size').value);
+            const income = parseFloat(document.getElementById('calc-income').value);
+
+            if (isNaN(income) || income < 0) return;
+
+            // 2026/2027 Base FPG logic: HH1 = $15,060, +$5,380 per additional person
+            const baseFPG = 15060 + (hhSize - 1) * 5380;
+            const fpgPct = Math.round((income / baseFPG) * 100);
+
+            document.getElementById('res-fpg-pct').innerText = `${fpgPct}% FPG`;
+
+            const tierElem = document.getElementById('res-charity-tier');
+            const descElem = document.getElementById('res-charity-desc');
+
+            if (fpgPct <= 300) {
+                tierElem.innerText = "Eligible for 100% Free Hospital Care";
+                tierElem.className = "text-slate-800 font-semibold text-base text-emerald-700";
+                descElem.innerText = `Your household income ($${income.toLocaleString()}) is at or below 300% FPG ($${(baseFPG * 3).toLocaleString()} for ${hhSize} person/s). Major PA non-profit hospital systems (Penn Medicine, UPMC, Allegheny Health Network) grant 100% free care under IRC § 501(r).`;
+            } else if (fpgPct <= 400) {
+                tierElem.innerText = "Eligible for Discounted Charity Care (AGB Cap)";
+                tierElem.className = "text-slate-800 font-semibold text-base text-blue-700";
+                descElem.innerText = `Your household income is between 301% and 400% FPG. Non-profit hospitals must cap billed charges at Amounts Generally Billed (AGB) rather than gross chargemaster rates.`;
+            } else {
+                tierElem.innerText = "Standard Financial Assistance / AGB Protection";
+                tierElem.className = "text-slate-800 font-semibold text-base text-slate-700";
+                descElem.innerText = `Your income exceeds 400% FPG ($${(baseFPG * 4).toLocaleString()}), but you can still request payment plans and verify that facility fees comply with AGB standard billing caps under § 501(r).`;
+            }
+
+            // Pennie subsidy text
+            const pennieCapElem = document.getElementById('res-pennie-cap');
+            const pennieDescElem = document.getElementById('res-pennie-desc');
+            const maxMonthly = Math.round((income * 0.085) / 12);
+
+            pennieCapElem.innerText = `Pennie Premium Cost-Cap: ~$${maxMonthly}/month Max`;
+            pennieDescElem.innerText = `Under PA Act 54 of 2024, state affordability subsidies benchmark baseline health plan costs to not exceed 8.5% of household income ($${(income * 0.085).toLocaleString()}/year).`;
+        }
+
+        // Action Plan Checklist Generator
+        function generateActionPlan() {
+            const checks = document.querySelectorAll('.action-check:checked');
+            const outputElem = document.getElementById('action-plan-output');
+
+            if (checks.length === 0) {
+                outputElem.innerHTML = `<p class="text-slate-400 italic">← Check one or more boxes on the left to display tailored statutory action steps and direct official links.</p>`;
+                return;
+            }
+
+            let steps = [];
+            checks.forEach(c => {
+                if (c.value === 'denial') {
+                    steps.push(`
+                        <div class="bg-slate-750 p-3 rounded border border-slate-700">
+                            <strong class="text-blue-400">Denied Prior Auth / Service:</strong>
+                            <ol class="list-decimal pl-4 mt-1 space-y-1 text-xs">
+                                <li>Have your doctor request a peer-to-peer review within Act 146 timelines.</li>
+                                <li>Exhaust internal plan appeals adhering strictly to notice deadlines.</li>
+                                <li>File a free binding state external review via the <a href="https://www.pa.gov/agencies/insurance/newsroom/pennsylvania-insurance-department-and-code-pa-launch-state-external-review-process-and-new-website-for-pennsylvanians-to-appeal-denied-health-plan-services" target="_blank" class="underline text-blue-300">PID External Review Portal</a> within 4 months.</li>
+                            </ol>
+                        </div>
+                    `);
+                }
+                if (c.value === 'surprise') {
+                    steps.push(`
+                        <div class="bg-slate-750 p-3 rounded border border-slate-700">
+                            <strong class="text-emerald-400">Surprise / Out-of-Network Bill:</strong>
+                            <ol class="list-decimal pl-4 mt-1 space-y-1 text-xs">
+                                <li>Verify that cost-sharing does not exceed standard in-network QPA copay/deductible limits.</li>
+                                <li>Do not pay non-qualifying balance charges from ancillary providers (anesthesiologists, radiologists).</li>
+                                <li>Submit a formal dispute through the <a href="https://www.pa.gov/services/insurance/request-a-review-of-an-unexpected-medical-bill-no-surprises-act" target="_blank" class="underline text-emerald-300">PID Unexpected Medical Bill Portal</a>.</li>
+                            </ol>
+                        </div>
+                    `);
+                }
+                if (c.value === 'hospital-bill') {
+                    steps.push(`
+                        <div class="bg-slate-750 p-3 rounded border border-slate-700">
+                            <strong class="text-purple-400">Hospital Charity Assistance:</strong>
+                            <ol class="list-decimal pl-4 mt-1 space-y-1 text-xs">
+                                <li>Request a formal Financial Assistance Policy (FAP) application from the billing department.</li>
+                                <li>Note that household incomes ≤300% FPG receive 100% free care at major non-profit PA systems.</li>
+                                <li>Enforce the statutory 120-day post-discharge freeze on Extraordinary Collection Actions (ECAs).</li>
+                            </ol>
+                        </div>
+                    `);
+                }
+                if (c.value === 'collection') {
+                    steps.push(`
+                        <div class="bg-slate-750 p-3 rounded border border-slate-700">
+                            <strong class="text-amber-400">Medical Debt Collection Defense:</strong>
+                            <ol class="list-decimal pl-4 mt-1 space-y-1 text-xs">
+                                <li>Invoke FCEUA/FDCPA by sending a written debt validation and cease-communication letter within 30 days.</li>
+                                <li>Assert the 4-year statute of limitations (42 Pa.C.S. § 5525(a)) on old accounts. Avoid partial payments!</li>
+                                <li>Enforce PA's <strong>total wage garnishment exemption</strong> under 42 Pa.C.S. § 8127. If bank accounts are targeted, claim $300 exemption under Pa. R.C.P. 3123.1.</li>
+                            </ol>
+                        </div>
+                    `);
+                }
+            });
+
+            outputElem.innerHTML = steps.join('');
+        }
+
+        // Initialize Charts & Views
+        window.addEventListener('DOMContentLoaded', () => {
+            // Render Initial Timeline Content
+            switchTimeline('urgent-rx');
+            calculateEligibility();
+
+            // Setup Category Filters for Legal Routes
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.className = "filter-btn bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-full");
+                    e.target.className = "filter-btn active bg-blue-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full";
+
+                    const filter = e.target.getAttribute('data-filter');
+                    document.querySelectorAll('.route-card').forEach(card => {
+                        if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                            card.style.display = 'flex';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
+            // Mobile Menu Toggle
+            document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+                document.getElementById('mobile-menu').classList.toggle('hidden');
+            });
+
+            // Chart 1: Appeals Gap
+            const ctxAppeals = document.getElementById('appealsChart').getContext('2d');
+            new Chart(ctxAppeals, {
+                type: 'bar',
+                data: {
+                    labels: ['Claims Denied', 'Internal Appeals Filed', 'Appeals Overturned'],
+                    datasets: [{
+                        label: 'PA Individual Market Volume',
+                        data: [2135041, 3156, 1515],
+                        backgroundColor: ['#e11d48', '#d97706', '#059669'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'logarithmic',
+                            title: { display: true, text: 'Volume (Log Scale)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw.toLocaleString() + ' claims';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Physician Harm
+            const ctxHarm = document.getElementById('harmChart').getContext('2d');
+            new Chart(ctxHarm, {
+                type: 'bar',
+                data: {
+                    labels: ['Causes Significant Care Delays', 'Causes Treatment Abandonment', 'Measurable Patient Health Decline'],
+                    datasets: [{
+                        label: 'Physician Survey Percentage (%)',
+                        data: [93, 82, 26],
+                        backgroundColor: ['#2563eb', '#7c3aed', '#e11d48'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { max: 100, title: { display: true, text: 'Percentage of Physicians (%)' } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

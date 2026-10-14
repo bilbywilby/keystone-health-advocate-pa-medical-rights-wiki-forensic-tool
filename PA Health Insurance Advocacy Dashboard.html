@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pennsylvania Health Insurance Rights & Legal Advocacy Explorer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<!-- Chosen Palette: Slate & Slate Horizon (Slate-50, Indigo-900, Teal-600, Amber-600) -->
+<!-- Application Structure Plan: Designed as an interactive consumer and advocate workspace. Features an Executive Summary with empirical charts, an interactive Legal Route Deep-Dive tabbed matrix, an interactive Premium Affordability & Act 54 Calculator, and a Step-by-Step Denial Decision Wizard. This structure translates dense statutory codes into intuitive, action-oriented tools. -->
+<!-- Visualization & Content Choices: Claims Denial & Appeal Gap -> Goal: Compare -> Chart.js Bar & Donut -> Hover/Click -> Highlights 48% success rate vs 0.2% appeal rate -> Chart.js Canvas; Prior Auth Health Harm -> Goal: Inform -> Chart.js Horizontal Bar -> Interactive tooltips -> Chart.js Canvas; Act 54 Affordability Calculator -> Goal: Interactive Calculation -> Dynamic JS Math -> Real-time cap feedback; Decision Wizard -> Goal: Guide -> JS Tab/Step Switcher -> Direct legal route mapping. Confirming NO SVG or Mermaid used. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-indigo-100 selection:text-indigo-900">
+
+    <header class="bg-indigo-950 text-white sticky top-0 z-50 shadow-md border-b border-indigo-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl" aria-hidden="true">⚖️</span>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-white leading-tight">PA Health Insurance Rights & Advocacy Explorer</h1>
+                    <p class="text-xs text-indigo-300">Statutory Rebuttals, Actuarial Insights & Legal Navigation Framework</p>
+                </div>
+            </div>
+            <nav class="flex flex-wrap items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium">
+                <a href="#overview" class="px-3 py-1.5 rounded-lg hover:bg-indigo-900 text-indigo-200 hover:text-white transition-colors">Overview</a>
+                <a href="#routes" class="px-3 py-1.5 rounded-lg hover:bg-indigo-900 text-indigo-200 hover:text-white transition-colors">Legal Routes Matrix</a>
+                <a href="#calculator" class="px-3 py-1.5 rounded-lg hover:bg-indigo-900 text-indigo-200 hover:text-white transition-colors">Affordability Calculator</a>
+                <a href="#wizard" class="px-3 py-1.5 rounded-lg hover:bg-indigo-900 text-indigo-200 hover:text-white transition-colors">Rebuttal Wizard</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <section id="overview" class="space-y-6 scroll-mt-20">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+                <div class="max-w-3xl space-y-3">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wider text-teal-800 bg-teal-50 border border-teal-200 rounded-full">Executive Data Summary</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Understanding Pennsylvania Health Dispute Pathways</h2>
+                    <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
+                        This interactive portal equips Pennsylvania healthcare consumers, legal navigators, and advocates with statutory mechanisms to challenge health insurance claim denials, unaffordable premium hikes, data matching discrepancies, and confidentiality breaches. Grounded in state empirical audit data, this platform outlines exact legal rights under PA Act 146, PA Act 54, PA Act 42, federal marketplace rules, and youth privacy protections.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mt-8">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+                        <span class="text-xs text-slate-500 font-medium">Annual Claims Denied</span>
+                        <span class="text-2xl sm:text-3xl font-black text-indigo-950 mt-1">2.13M</span>
+                        <span class="text-[11px] text-slate-500 mt-1">Individual market plans</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+                        <span class="text-xs text-slate-500 font-medium">Claims Challenged</span>
+                        <span class="text-2xl sm:text-3xl font-black text-amber-600 mt-1">&lt;0.2%</span>
+                        <span class="text-[11px] text-slate-500 mt-1">Only 3,156 appeals filed</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+                        <span class="text-xs text-slate-500 font-medium">Internal Appeal Win Rate</span>
+                        <span class="text-2xl sm:text-3xl font-black text-teal-600 mt-1">48%</span>
+                        <span class="text-[11px] text-slate-500 mt-1">Nearly half succeeded</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+                        <span class="text-xs text-slate-500 font-medium">Premium Surge</span>
+                        <span class="text-2xl sm:text-3xl font-black text-rose-600 mt-1">102%</span>
+                        <span class="text-[11px] text-slate-500 mt-1">85k residents lost coverage</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+                        <span class="text-xs text-slate-500 font-medium">Act 54 Premium Cap</span>
+                        <span class="text-2xl sm:text-3xl font-black text-indigo-900 mt-1">8.5%</span>
+                        <span class="text-[11px] text-slate-500 mt-1">Max household income benchmark</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">The Appeals Discrepancy Gap</h3>
+                        <p class="text-xs text-slate-500 mb-4">Comparison between claim denials, low appeal rates, and successful outcome rates in PA.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="appealsGapChart"></canvas>
+                    </div>
+                    <div class="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-900">
+                        <strong>Key Takeaway:</strong> Despite a 48% success rate upon appeal, less than 0.2% of denied claims are ever challenged by consumers.
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">Prior Authorization Health Impact</h3>
+                        <p class="text-xs text-slate-500 mb-4">Physician-reported patient harm resulting from prior authorization delays.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="priorAuthChart"></canvas>
+                    </div>
+                    <div class="mt-4 p-3 bg-indigo-50 rounded-lg border border-indigo-200 text-xs text-indigo-900">
+                        <strong>Key Takeaway:</strong> 93% of physicians report severe care delays, while 26% cite measurable clinical health decline due to insurer requirements.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="routes" class="space-y-6 scroll-mt-20">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+                <div class="max-w-3xl space-y-2">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-800 bg-indigo-50 border border-indigo-200 rounded-full">Interactive Legal Matrix</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Explore the 5 Primary Legal Advocacy Routes</h2>
+                    <p class="text-slate-600 text-sm sm:text-base">
+                        Select a legal pathway below to review statutory sources, lay explanations, key empirical benchmarks, and required evidence to enforce consumer protections under PA and Federal law.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap gap-2 mt-6 border-b border-slate-200 pb-4" id="routeTabButtons">
+                    <button onclick="switchRouteTab(0)" class="route-tab-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-indigo-900 text-white shadow-sm transition-all">Route 1: Medical Denials</button>
+                    <button onclick="switchRouteTab(1)" class="route-tab-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">Route 2: Hardship & Subsidies</button>
+                    <button onclick="switchRouteTab(2)" class="route-tab-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">Route 3: Income DMIs</button>
+                    <button onclick="switchRouteTab(3)" class="route-tab-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">Route 4: System Outages</button>
+                    <button onclick="switchRouteTab(4)" class="route-tab-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">Route 5: Minor Privacy</button>
+                </div>
+
+                <div id="routeTabContent" class="mt-6">
+                </div>
+            </div>
+        </section>
+
+        <section id="calculator" class="space-y-6 scroll-mt-20">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+                <div class="max-w-3xl space-y-2">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-800 bg-amber-50 border border-amber-200 rounded-full">Act 54 Affordability Tool</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Interactive Premium Cap & Hardship Calculator</h2>
+                    <p class="text-slate-600 text-sm sm:text-base">
+                        Under PA Act 54, state affordability subsidies benchmark baseline premium contributions so residents do not exceed 8.5% of household MAGI. Enter your financial details below to assess potential relief eligibility.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8 items-start">
+                    <div class="lg:col-span-5 bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-4">
+                        <h3 class="text-base font-bold text-slate-900">Household Income & Premium Inputs</h3>
+                        <div>
+                            <label for="calcIncome" class="block text-xs font-medium text-slate-700 mb-1">Annual Modified Adjusted Gross Income (MAGI)</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2.5 text-slate-400 text-sm">$</span>
+                                <input type="number" id="calcIncome" value="38000" class="w-full pl-7 pr-3 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="calcPremium" class="block text-xs font-medium text-slate-700 mb-1">Current Unsubsidized Monthly Health Premium</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2.5 text-slate-400 text-sm">$</span>
+                                <input type="number" id="calcPremium" value="480" class="w-full pl-7 pr-3 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="calcHousehold" class="block text-xs font-medium text-slate-700 mb-1">Household Size</label>
+                            <select id="calcHousehold" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                                <option value="1">1 Person</option>
+                                <option value="2">2 People</option>
+                                <option value="3" selected>3 People</option>
+                                <option value="4">4 People</option>
+                            </select>
+                        </div>
+                        <button onclick="calculateAct54Relief()" class="w-full py-2.5 bg-indigo-900 hover:bg-indigo-950 text-white font-semibold rounded-lg text-sm transition-colors shadow-sm">
+                            Run Act 54 Affordability Check
+                        </button>
+                    </div>
+
+                    <div class="lg:col-span-7 space-y-4">
+                        <div id="calcResults" class="p-6 bg-indigo-50 border border-indigo-200 rounded-xl space-y-4">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="wizard" class="space-y-6 scroll-mt-20">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+                <div class="max-w-3xl space-y-2">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wider text-teal-800 bg-teal-50 border border-teal-200 rounded-full">Rebuttal Decision Engine</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Guided Dispute & Rebuttal Decision Wizard</h2>
+                    <p class="text-slate-600 text-sm sm:text-base">
+                        Select the specific barrier you are currently facing to generate an immediate statutory strategy, required supporting documentation checklist, and key regulatory deadlines.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+                    <button onclick="runWizard('denial')" class="wizard-option-btn p-4 text-left border rounded-xl hover:border-indigo-600 hover:bg-indigo-50/50 transition-all border-indigo-600 bg-indigo-50/30">
+                        <div class="text-lg mb-1" aria-hidden="true">🚫</div>
+                        <div class="font-bold text-slate-900 text-sm">Treatment or Drug Denied</div>
+                        <div class="text-xs text-slate-500 mt-1">Medical necessity or prior authorization denial from health insurer.</div>
+                    </button>
+                    <button onclick="runWizard('income')" class="wizard-option-btn p-4 text-left border border-slate-200 rounded-xl hover:border-indigo-600 hover:bg-indigo-50/50 transition-all">
+                        <div class="text-lg mb-1" aria-hidden="true">📄</div>
+                        <div class="font-bold text-slate-900 text-sm">Income Flag / DMI Notice</div>
+                        <div class="text-xs text-slate-500 mt-1">Pennie tax discrepancy notice or 90-day subsidy termination warning.</div>
+                    </button>
+                    <button onclick="runWizard('outage')" class="wizard-option-btn p-4 text-left border border-slate-200 rounded-xl hover:border-indigo-600 hover:bg-indigo-50/50 transition-all">
+                        <div class="text-lg mb-1" aria-hidden="true">💻</div>
+                        <div class="font-bold text-slate-900 text-sm">Portal Crash / Missed Sign-Up</div>
+                        <div class="text-xs text-slate-500 mt-1">Pennie system outage, login error, or administrative technical glitch.</div>
+                    </button>
+                </div>
+
+                <div id="wizardOutput" class="mt-6 p-6 bg-slate-50 border border-slate-200 rounded-xl space-y-4">
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3 text-center sm:text-left sm:flex sm:items-center sm:justify-between sm:space-y-0">
+            <div>
+                <p class="font-semibold text-slate-300">Pennsylvania Health Insurance Advocacy & Legal Routes System</p>
+                <p class="text-slate-500 mt-0.5">Based on PA Act 146, Act 54, Act 42, Act 147 & Federal CFR Standard Provisions.</p>
+            </div>
+            <div class="text-slate-500">
+                <span>Free Legal Guidance Tool • Pennsylvania Insurance Department Contact: 1-877-881-6388</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const routeData = [
+            {
+                title: "Route 1: External Appeals for Medical Denials & Prior Authorization",
+                statute: "PA Act 146 of 2022 (40 P.S. § 991.2101 et seq.)",
+                layman: "If your insurer claims a procedure, drug, or scan is not 'medically necessary' or lacked prior authorization, you can request an independent external review through the PA Insurance Department (PID) at zero cost after internal appeals. Independent doctors review your case, and their binding ruling forces the insurer to cover the care if approved.",
+                stats: [
+                    "2,135,041 QHP claims denied in a single reporting year.",
+                    "Less than 0.2% of denials are appealed by consumers.",
+                    "48% of internal appeals successfully overturn denials.",
+                    "100+ Pennsylvanians overturned denials in 1st 6 months of Act 146.",
+                    "93% of physicians report prior auth causes severe care delays."
+                ],
+                timeline: "Request internal appeal within 180 days -> Submit PID External Review within 4 months of final adverse determination.",
+                documents: ["Insurance Denial Letter (EOD)", "Physician Letter of Medical Necessity", "Clinical Chart Notes & Lab Results"]
+            },
+            {
+                title: "Route 2: Recalculating Unaffordable Premiums & Hardship Relief",
+                statute: "PA Act 54 of 2024 (PA Fiscal Code Benchmark Provisions)",
+                layman: "Pennsylvania benchmarks baseline health costs so residents should not pay over 8.5% of household MAGI. If you experience income drops, job transitions, or schedule shifts, demand an immediate MAGI recalculation through Pennie to unlock state affordability subsidies and Cost-Sharing Reductions (CSRs).",
+                stats: [
+                    "102% average premium surge caused 85,000 enrollees to drop plans.",
+                    "80% of uninsured Pennsylvanians suffer medical debt anxiety.",
+                    "Act 54 state subsidies cut premiums by 9% to 12% on average.",
+                    "Over 280,000 Pennsylvanians receive state-funded financial relief."
+                ],
+                timeline: "Report income drop within 30 days -> MAGI adjustment processed within 1 to 2 billing cycles.",
+                documents: ["Recent Pay Stubs / Loss of Income Proof", "Updated Tax Return Transcripts", "Pennie MAGI Appeal Petition Form"]
+            },
+            {
+                title: "Route 3: Rebutting Income Data Matching Discrepancies (DMIs)",
+                statute: "45 C.F.R. § 155.320 & Privacy Act Safeguards (5 U.S.C. § 552a(p))",
+                layman: "When exchange systems flag an income discrepancy between your application and old IRS tax returns, they cannot cut off financial aid immediately. Federal law mandates a 90-day warning period ('inconsistency period') to submit proof before subsidies can be altered.",
+                stats: [
+                    "Most DMIs stem from gig-economy shifts or seasonal work, not fraud.",
+                    "PY2027 rules enforce strict mandatory secondary verification <100% FPL.",
+                    "Federal computer matching rules require a 10-year audit trail log."
+                ],
+                timeline: "90-day mandatory inconsistency period from notice date -> Submit proof prior to day 85 to ensure processing.",
+                documents: ["W-2 Forms / Recent Pay Statements", "Attestation Letter explaining seasonal earnings", "IRS Tax Return Transcripts"]
+            },
+            {
+                title: "Route 4: Special Enrollment Periods for Exchange System Outages",
+                statute: "PA Act 42 of 2019 (40 Pa.C.S. § 9301 et seq.)",
+                layman: "If web crashes, portal maintenance, or technical login errors prevented you from enrolling before an open enrollment deadline, state law allows you to petition Pennie for an administrative Special Enrollment Period (SEP).",
+                stats: [
+                    "12% drop in new sign-ups caused by technical access friction and cost confusion.",
+                    "Act 42 SEPs provided vital bridge during Medicaid unwinding process.",
+                    "High approval rate for documented technical disruption claims."
+                ],
+                timeline: "Submit petition within 60 days of missed deadline due to system outage.",
+                documents: ["Screenshots of Website Error / Crash Messages", "Pennie Support Ticket Numbers / Call Logs", "Act 42 Administrative Petition Request"]
+            },
+            {
+                title: "Route 5: Minor Health Privacy & Confidential EOB Suppression",
+                statute: "PA Minors' Consent to Medical Care Act (35 P.S. § 10101 & Act 147)",
+                layman: "Minors in PA have statutory rights to consent to certain confidential care. Under Act 147, young people can require health plans to suppress standard Explanation of Benefits (EOBs) and reroute statements to a secure address so sensitive treatment remains confidential from policyholders.",
+                stats: [
+                    "272,000 PA youth (1 in 5 aged 12-17) experienced major depression.",
+                    "1 in 7 behavioral health visits are out-of-network (costing 130% more).",
+                    "$517,375 in PID enforcement refunds for mental health parity violations."
+                ],
+                timeline: "File EOB Suppression Request immediately upon seeking confidential care.",
+                documents: ["Act 147 Confidential Communication Request", "Minor Consent Verification Form", "Designated Safe Address Form"]
+            }
+        ];
+
+        function switchRouteTab(index) {
+            const buttons = document.querySelectorAll('.route-tab-btn');
+            buttons.forEach((btn, i) => {
+                if (i === index) {
+                    btn.className = 'route-tab-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-indigo-900 text-white shadow-sm transition-all';
+                } else {
+                    btn.className = 'route-tab-btn px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all';
+                }
+            });
+
+            const route = routeData[index];
+            const container = document.getElementById('routeTabContent');
+            
+            let statsListHtml = route.stats.map(s => `<li class="flex items-start gap-2"><span class="text-teal-600 mt-0.5">•</span><span>${s}</span></li>`).join('');
+            let docsListHtml = route.documents.map(d => `<span class="inline-block px-2.5 py-1 text-xs font-medium bg-slate-200 text-slate-800 rounded-md">${d}</span>`).join(' ');
+
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div>
+                            <span class="text-xs font-bold text-indigo-900 uppercase tracking-wider">Statutory Source</span>
+                            <h3 class="text-base font-extrabold text-indigo-950">${route.title}</h3>
+                            <p class="text-xs font-semibold text-indigo-700 mt-0.5">${route.statute}</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <h4 class="text-xs font-bold uppercase text-slate-500 tracking-wider">Layman Explanation & Legal Route</h4>
+                            <p class="text-sm text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-200">${route.layman}</p>
+                            
+                            <h4 class="text-xs font-bold uppercase text-slate-500 tracking-wider pt-2">Required Supporting Evidence</h4>
+                            <div class="flex flex-wrap gap-2">${docsListHtml}</div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <h4 class="text-xs font-bold uppercase text-slate-500 tracking-wider">Empirical Data Observations</h4>
+                            <ul class="text-xs text-slate-700 space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200">${statsListHtml}</ul>
+
+                            <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900">
+                                <strong>Mandatory Timeline:</strong> ${route.timeline}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function calculateAct54Relief() {
+            const income = parseFloat(document.getElementById('calcIncome').value) || 0;
+            const monthlyPremium = parseFloat(document.getElementById('calcPremium').value) || 0;
+            const annualPremium = monthlyPremium * 12;
+
+            const resultsContainer = document.getElementById('calcResults');
+
+            if (income <= 0 || monthlyPremium <= 0) {
+                resultsContainer.innerHTML = `<p class="text-sm text-rose-600 font-semibold">Please enter valid positive numbers for income and premium.</p>`;
+                return;
+            }
+
+            const premiumSharePercent = ((annualPremium / income) * 100).toFixed(1);
+            const cappedMaxAnnualPremium = income * 0.085;
+            const cappedMaxMonthlyPremium = cappedMaxAnnualPremium / 12;
+            const monthlySavings = Math.max(0, monthlyPremium - cappedMaxMonthlyPremium).toFixed(2);
+            const annualSavings = (monthlySavings * 12).toFixed(2);
+
+            let statusBadge = '';
+            if (premiumSharePercent > 8.5) {
+                statusBadge = `<span class="px-3 py-1 bg-rose-100 text-rose-800 border border-rose-200 font-bold text-xs rounded-full">Exceeds Act 54 Cap (${premiumSharePercent}%)</span>`;
+            } else {
+                statusBadge = `<span class="px-3 py-1 bg-teal-100 text-teal-800 border border-teal-200 font-bold text-xs rounded-full">Within 8.5% Benchmark</span>`;
+            }
+
+            resultsContainer.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <h4 class="font-extrabold text-slate-900 text-base">Act 54 Affordability Assessment</h4>
+                    ${statusBadge}
+                </div>
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <div class="bg-white p-3 rounded-lg border border-slate-200">
+                        <span class="text-xs text-slate-500 block">Current Premium Share</span>
+                        <span class="text-xl font-black text-slate-900">${premiumSharePercent}%</span>
+                        <span class="text-[10px] text-slate-400 block mt-0.5">of gross household income</span>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg border border-slate-200">
+                        <span class="text-xs text-slate-500 block">Act 54 Target Max Premium</span>
+                        <span class="text-xl font-black text-indigo-900">$${cappedMaxMonthlyPremium.toFixed(2)}/mo</span>
+                        <span class="text-[10px] text-slate-400 block mt-0.5">8.5% income cap benchmark</span>
+                    </div>
+                </div>
+                ${monthlySavings > 0 ? `
+                    <div class="p-3 bg-teal-50 border border-teal-200 rounded-lg text-xs text-teal-900 space-y-1">
+                        <div class="font-bold text-sm text-teal-950">Estimated Subsidy / Savings Potential</div>
+                        <div>You are paying <strong>$${monthlySavings}/month</strong> ($${annualSavings}/year) above the state 8.5% benchmark.</div>
+                        <div class="pt-1"><strong>Action Step:</strong> Submit a Pennie MAGI Redetermination Request citing PA Act 54 of 2024 to adjust subsidy level.</div>
+                    </div>
+                ` : `
+                    <div class="p-3 bg-slate-100 border border-slate-200 rounded-lg text-xs text-slate-700">
+                        Your current unsubsidized premium is below the 8.5% statutory benchmark threshold. However, if your income decreases during the year, immediately re-verify your MAGI to claim Cost-Sharing Reductions (CSRs).
+                    </div>
+                `}
+            `;
+        }
+
+        function runWizard(type) {
+            const buttons = document.querySelectorAll('.wizard-option-btn');
+            buttons.forEach(btn => btn.className = 'wizard-option-btn p-4 text-left border border-slate-200 rounded-xl hover:border-indigo-600 hover:bg-indigo-50/50 transition-all');
+            
+            const out = document.getElementById('wizardOutput');
+
+            if (type === 'denial') {
+                event.currentTarget.className = 'wizard-option-btn p-4 text-left border rounded-xl hover:border-indigo-600 hover:bg-indigo-50/50 transition-all border-indigo-600 bg-indigo-50/30';
+                out.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 text-xs font-bold bg-indigo-100 text-indigo-900 rounded-md">PA Act 146 Action Protocol</span>
+                            <span class="text-xs text-slate-500">Medical Necessity & Prior Auth Denial</span>
+                        </div>
+                        <h4 class="text-lg font-bold text-slate-900">Step-by-Step Statutory Appeal Route</h4>
+                        <ol class="list-decimal pl-5 text-xs text-slate-700 space-y-1.5 leading-relaxed">
+                            <li><strong>File Internal Appeal:</strong> Request internal plan review within 180 days of denial notice. Note: 48% of internal appeals win!</li>
+                            <li><strong>Obtain Physician Support:</strong> Have your prescribing doctor draft a detailed Letter of Medical Necessity directly citing clinical guidelines.</li>
+                            <li><strong>Escalate to PA Insurance Department (PID):</strong> If the internal appeal fails, file a petition for Act 146 Independent External Review at zero cost. Independent doctor decisions are binding on the plan.</li>
+                        </ol>
+                    </div>
+                `;
+            } else if (type === 'income') {
+                event.currentTarget.className = 'wizard-option-btn p-4 text-left border rounded-xl hover:border-indigo-600 hover:bg-indigo-50/50 transition-all border-indigo-600 bg-indigo-50/30';
+                out.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 text-xs font-bold bg-amber-100 text-amber-900 rounded-md">45 C.F.R. § 155.320 Protocol</span>
+                            <span class="text-xs text-slate-500">Data Matching Issue (DMI)</span>
+                        </div>
+                        <h4 class="text-lg font-bold text-slate-900">Protecting Financial Aid During 90-Day Warning</h4>
+                        <ol class="list-decimal pl-5 text-xs text-slate-700 space-y-1.5 leading-relaxed">
+                            <li><strong>Track Inconsistency Period:</strong> You have a mandatory 90-day warning window from the notice date before subsidies can be altered.</li>
+                            <li><strong>Gather Proof:</strong> Collect pay stubs covering the last 30-60 days, recent W-2s, or employer attestation letters explaining gig or seasonal income variations.</li>
+                            <li><strong>Upload to Pennie Portal:</strong> Submit documents under your Pennie account dashboard before day 85 to ensure manual audit completion.</li>
+                        </ol>
+                    </div>
+                `;
+            } else if (type === 'outage') {
+                event.currentTarget.className = 'wizard-option-btn p-4 text-left border rounded-xl hover:border-indigo-600 hover:bg-indigo-50/50 transition-all border-indigo-600 bg-indigo-50/30';
+                out.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 text-xs font-bold bg-teal-100 text-teal-900 rounded-md">PA Act 42 Administrative Petition</span>
+                            <span class="text-xs text-slate-500">Exchange System Outage / SEP</span>
+                        </div>
+                        <h4 class="text-lg font-bold text-slate-900">Claiming Special Enrollment for Web Disruption</h4>
+                        <ol class="list-decimal pl-5 text-xs text-slate-700 space-y-1.5 leading-relaxed">
+                            <li><strong>Document Outage:</strong> Save screenshots showing error codes, crash alerts, or login failure timestamps.</li>
+                            <li><strong>File Administrative Petition:</strong> Submit an Act 42 exception request with Pennie customer service referencing the platform friction.</li>
+                            <li><strong>Secure Backdated Coverage:</strong> Approved Act 42 SEPs grant enrollment retroactive to the attempted sign-up period.</li>
+                        </ol>
+                    </div>
+                `;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            switchRouteTab(0);
+            calculateAct54Relief();
+            runWizard('denial');
+
+            const ctx1 = document.getElementById('appealsGapChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Claims Denied', 'Appeals Filed', 'Appeals Won'],
+                    datasets: [{
+                        label: 'Volume of Claims / Appeals',
+                        data: [2135041, 3156, 1515],
+                        backgroundColor: ['#1e1b4b', '#d97706', '#0d9488'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'logarithmic',
+                            title: { display: true, text: 'Logarithmic Scale (Count)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let val = context.raw.toLocaleString();
+                                    if (context.dataIndex === 1) return `Appeals Filed: ${val} (<0.2% of denials)`;
+                                    if (context.dataIndex === 2) return `Appeals Won: ${val} (~48% win rate)`;
+                                    return `Total Claims Denied: ${val}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const ctx2 = document.getElementById('priorAuthChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: [
+                        'Care Delays (93%)',
+                        'Treatment Abandoned (82%)',
+                        'Health Decline (26%)'
+                    ],
+                    datasets: [{
+                        label: 'Physician Reported Impact (%)',
+                        data: [93, 82, 26],
+                        backgroundColor: ['#dc2626', '#d97706', '#1e1b4b'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            max: 100,
+                            ticks: { callback: v => v + '%' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
